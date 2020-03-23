@@ -2,6 +2,7 @@
 * generacja mapy
 * postać gracza:
 	* poruszanie
+	* opcjonalne ograniczenie czasu na wykonanie ruchu
 * nakładka graficzna:
 	* mapa, sprite gracza
 	* (może) menu
@@ -19,8 +20,9 @@
 
 # Krok 4
 * Regulacja poziomu trudności
-* Opcjonalne ograniczenie czasowe na wykonanie ruchu
-* Opcjonalne ograniczenie czasowe na przejście poziomu
+* (może) Wydarzenia wyzwalane po określonej liczbie tur:
+	* wymuszenie przejścia na następny poziom
+	* opcjonalnie koniec gry
 
 # Krok 5
 * Rozszerzanie istniejących aspektów
