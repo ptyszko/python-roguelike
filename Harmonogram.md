@@ -9,7 +9,7 @@
 # Krok 2
 * przeciwnicy
 * interakcje ze światem:
-	* schody no następnego poziomu
+	* schody do następnego poziomu
 	* (może) pułapki
 
 # Krok 3
