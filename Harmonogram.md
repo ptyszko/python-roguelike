@@ -1,11 +1,17 @@
+AM = Antoni Machowski
+PT = Paweł Tyszko
+gdzie niewymienione - docelowo:
+* AM od strony programowej (detekcja kolizji; listy tile-ów, preciwników... itp.)
+* PT od strony graficznej (okna, sprite-y, wejście od gracza itp.)
+
 # Krok 1
-* generacja mapy
+* (AM) generacja mapy
 * postać gracza:
 	* poruszanie
 	* opcjonalne ograniczenie czasu na wykonanie ruchu
-* nakładka graficzna:
+* (PT) nakładka graficzna:
 	* mapa, sprite gracza
-	* (może) menu
+	* menu główne
 
 # Krok 2
 * przeciwnicy
