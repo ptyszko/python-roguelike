@@ -1,2 +1,2 @@
-# Projek python roguelike
+# Projekt python roguelike
 
