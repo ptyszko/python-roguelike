@@ -1,4 +1,5 @@
 import pyglet
+from util import colors, fonts
 
 
 class MainMenu(pyglet.window.Window):
@@ -8,33 +9,32 @@ class MainMenu(pyglet.window.Window):
         self.set_minimum_size(width=480, height=320)
         self.background = pyglet.image.load('img/wood_floor.png')
         self.batch = pyglet.graphics.Batch()
-        def_fonts = ['Helvetica', 'Arial', 'sans-serif']
         def_style = {'anchor_x': 'center', 'anchor_y': 'center',
                      'x': self.width//2, 'batch': self.batch}
 
         self.title = pyglet.text.Label(
             'SOME ROGUELIKE',
-            font_name=['Liberation Serif', 'Times New Roman', 'serif'],
+            font_name=fonts.SERIF,
             font_size=40, y=self.height-30,
             **def_style
         )
 
         self.start = pyglet.text.Label(
             'Start game',
-            font_name=def_fonts, font_size=30,
-            y=220, color=(0, 255, 0, 255),
+            font_name=fonts.SANS, font_size=30,
+            y=220, color=colors.GREEN,
             **def_style
         )
 
         self.menu = pyglet.text.Label(
             'Settings',
-            font_name=def_fonts, font_size=30,
+            font_name=fonts.SANS, font_size=30,
             y=100, **def_style
         )
 
         self.exit = pyglet.text.Label(
             'Quit',
-            font_name=def_fonts, font_size=30,
+            font_name=fonts.SANS, font_size=30,
             y=40, **def_style
         )
 
