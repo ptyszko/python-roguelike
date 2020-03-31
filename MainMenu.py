@@ -1,4 +1,4 @@
-from lib import pyglet
+import pyglet
 
 
 class MainMenu(pyglet.window.Window):
