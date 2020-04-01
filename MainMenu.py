@@ -51,13 +51,13 @@ class MainMenu(pyglet.window.Window):
     def on_key_press(self, symbol, modifiers):
         super().on_key_press(symbol, modifiers)
         if symbol == pyglet.window.key.UP:
-            self.buttons[self.active_button].color = (255, 255, 255, 255)
+            self.buttons[self.active_button].color = colors.WHITE
             self.active_button = (self.active_button-1) % len(self.buttons)
-            self.buttons[self.active_button].color = (0, 255, 0, 255)
+            self.buttons[self.active_button].color = colors.GREEN
         elif symbol == pyglet.window.key.DOWN:
-            self.buttons[self.active_button].color = (255, 255, 255, 255)
+            self.buttons[self.active_button].color = colors.WHITE
             self.active_button = (self.active_button+1) % len(self.buttons)
-            self.buttons[self.active_button].color = (0, 255, 0, 255)
+            self.buttons[self.active_button].color = colors.GREEN
         elif symbol == pyglet.window.key.ENTER:
             button = self.buttons[self.active_button]
             if button == self.start:
