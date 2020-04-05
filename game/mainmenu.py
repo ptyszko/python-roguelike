@@ -1,25 +1,30 @@
 import pyglet
 from util import colors, fonts
+from util.button import Button
+from game.gamewindow import Game
 
 
 class MainMenu(pyglet.window.Window):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, game_state: set, *args, **kwargs):
         kwargs['visible'] = False
         super().__init__(*args, **kwargs)
+        self.game_state = game_state
+
         self.set_minimum_size(width=480, height=320)
         self.background = pyglet.image.load('img/wood_floor.png')
         self.batch = pyglet.graphics.Batch()
-        def_style = {'anchor_x': 'center', 'anchor_y': 'center',
-                     'x': self.width//2, 'batch': self.batch}
 
+        # create title and buttons
+        def_style = {'x': self.width//2, 'batch': self.batch}
         self.title = pyglet.text.Label(
             'SOME ROGUELIKE',
             font_name=fonts.SERIF,
             font_size=40, y=self.height-30,
+            anchor_x='center', anchor_y='center',
             **def_style
         )
 
-        self.start = pyglet.text.Label(
+        '''self.start = pyglet.text.Label(
             'Start game',
             font_name=fonts.SANS, font_size=30,
             y=220, color=colors.GREEN,
@@ -36,6 +41,22 @@ class MainMenu(pyglet.window.Window):
             'Quit',
             font_name=fonts.SANS, font_size=30,
             y=40, **def_style
+        )'''
+        self.start = Button(
+            text='Start Game',
+            y=220, color=colors.GREEN,
+            action=self.new_game,
+            **def_style
+        )
+        self.menu = Button(
+            text='Settings', y=100,
+            action=self.open_settings,
+            **def_style
+        )
+        self.exit = Button(
+            text='Quit', y=40,
+            action=self.close,
+            **def_style
         )
 
         self.buttons = [self.start, self.menu, self.exit]
@@ -48,35 +69,6 @@ class MainMenu(pyglet.window.Window):
         bcg.blit_tiled(0, 0, 0, width=self.width, height=self.height)
         self.batch.draw()
 
-    def on_key_press(self, symbol, modifiers):
-        super().on_key_press(symbol, modifiers)
-        if symbol == pyglet.window.key.UP:
-            self.buttons[self.active_button].color = colors.WHITE
-            self.active_button = (self.active_button-1) % len(self.buttons)
-            self.buttons[self.active_button].color = colors.GREEN
-        elif symbol == pyglet.window.key.DOWN:
-            self.buttons[self.active_button].color = colors.WHITE
-            self.active_button = (self.active_button+1) % len(self.buttons)
-            self.buttons[self.active_button].color = colors.GREEN
-        elif symbol == pyglet.window.key.ENTER:
-            button = self.buttons[self.active_button]
-            if button == self.start:
-                # TODO: Nowa gra
-                pyglet.window.Window(
-                    caption='tu bedzie okno nowej gry',
-                    width=self.width,
-                    height=self.height
-                )
-                self.close()
-
-            elif button == self.menu:
-                #TODO: Ustawienia
-                print('settings')
-            else:
-                pyglet.app.exit()
-        elif symbol == pyglet.window.key.F1:
-            print(self)
-
     def on_resize(self, width, height):
         super().on_resize(width, height)
         for button in self.buttons:
@@ -84,7 +76,32 @@ class MainMenu(pyglet.window.Window):
         self.title.x = width//2
         self.title.y = height - 50
 
+    def on_key_press(self, symbol, modifiers):
+        super().on_key_press(symbol, modifiers)
+        if symbol == pyglet.window.key.UP:
+            self.buttons[self.active_button].color = colors.WHITE
+            self.active_button = ((self.active_button-1)
+                                  % len(self.buttons))
+            self.buttons[self.active_button].color = colors.GREEN
+        elif symbol == pyglet.window.key.DOWN:
+            self.buttons[self.active_button].color = colors.WHITE
+            self.active_button = ((self.active_button+1)
+                                  % len(self.buttons))
+            self.buttons[self.active_button].color = colors.GREEN
+        elif symbol == pyglet.window.key.ENTER:
+            self.buttons[self.active_button]()
+        elif symbol == pyglet.window.key.F1:
+            print(self)
 
-if __name__ == "__main__":
-    win = MainMenu(resizable=True)
-    pyglet.app.run()
+    def open_settings(self):
+        # TODO: Ustawienia
+        print('settings')
+
+    def new_game(self):
+        Game(
+            width=self.width,
+            height=self.height,
+            game_state=self.game_state,
+            caption='Level -1'  # placeholder
+        )
+        self.close()
