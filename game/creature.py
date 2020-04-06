@@ -1,40 +1,41 @@
 from pyglet.sprite import Sprite
 from pyglet.image import load
+from pyglet.graphics import Batch
 from abc import ABC
+from util import tile
 
+creatures = Batch()
 
 class Creature(Sprite, ABC):
-    def __init__(self, path, tile_width, tile_height,
-                 xpos=0, ypos=0,  batch=None, group=None):
+    def __init__(self, path, tile_width, tile_height, game_state: dict,
+                 xpos=0, ypos=0, group=None):
         img = load(path)
+        self.game = game_state
         self.tile_width = tile_width
         self.tile_height = tile_height
-        self._xpos = xpos
-        self._ypos = ypos
+        self.xpos = xpos
+        self.ypos = ypos
         super().__init__(img, x=xpos*tile_width, y=ypos*tile_height,
-                         batch=batch, group=group, usage='dynamic', subpixel=False)
-        
-    def update_position(self):
-        self.x = self._xpos * self.tile_width
-        self.y = self._ypos * self.tile_height
-        
-    def set_xpos(self, val):
-        self._xpos = val
-        self.update_position()
-        
-    def set_ypos(self, val):
-        self._ypos = val
-        self.update_position()
-    
-    def get_xpos(self):
-        return self._xpos
-    
-    def get_ypos(self):
-        return self._ypos
-    
-    xpos = property(get_xpos, set_xpos)
-    ypos = property(get_ypos, set_ypos)
+                         batch=creatures, group=group, usage='dynamic', subpixel=False)
+
+        # po całościowej konstrukcji normalizujemy rozmiar
+        self.scale_x /= self.width / self.tile_width
+        self.scale_y /= self.height / self.tile_height
+
+    def move(self, dx, dy):
+        if (
+            self.game['map']
+            [self.xpos+dx]
+            [self.ypos+dy]
+        ) != tile.WALL:
+            self.xpos += dx
+            self.ypos += dy
+            self.x += dx * self.tile_width
+            self.y += dy * self.tile_height
+
+        print(f'my pos is ({self.xpos}, {self.ypos})')
 
 
 class Player(Creature):
-    pass
+    def __init__(self, path, tile_width, tile_height, game_state, xpos=0, ypos=0, group=None):
+        super().__init__(path, tile_width, tile_height, game_state, xpos=xpos, ypos=ypos, group=group)
