@@ -16,8 +16,8 @@ class Game(pyglet.window.Window):
         self.tile_width = self.floor.width
         self.tile_height = self.floor.height
         game_state['pc'] = self.pc = (
-            Player('img/player.png', 
-                   self.tile_width, self.tile_height, 
+            Player('img/player.png',
+                   self.tile_width, self.tile_height,
                    xpos=1, ypos=1,
                    game_state=self.game_state)
         )
@@ -34,9 +34,9 @@ class Game(pyglet.window.Window):
             width=self.width,
             rectangle=True
         )
-        
-        self.push_handlers(on_key_press = self.key_pressed)
-        
+
+        self.push_handlers(on_key_press=self.key_pressed)
+
         self.clear()
         self.draw_level(1)
 
@@ -54,13 +54,12 @@ class Game(pyglet.window.Window):
                     y=ycoord*self.tile_height,
                     z=0
                 )
-        self.background.blit(0,0)
+        self.background.blit(0, 0)
         self.pc.draw()
 
     def key_pressed(self, symbol, modifier):
         if symbol in keys.DIRECTIONAL:
             self.pc.move(*keys.DIRECTIONS_DICT[symbol])
         self.clear()
-        self.background.blit(0,0)
+        self.background.blit(0, 0)
         self.pc.draw()
-        

@@ -12,10 +12,10 @@ class MainMenu(pyglet.window.Window):
 
         self.set_minimum_size(width=480, height=320)
         self.background = pyglet.image.load('img/wood_floor.png')
-        self.batch = pyglet.graphics.Batch()
+        self.main_screen = pyglet.graphics.Batch()
 
         # create title and buttons
-        def_style = {'x': self.width//2, 'batch': self.batch}
+        def_style = {'x': self.width//2, 'batch': self.main_screen}
         self.title = pyglet.text.Label(
             'SOME ROGUELIKE',
             font_name=fonts.SERIF,
@@ -67,7 +67,7 @@ class MainMenu(pyglet.window.Window):
         self.clear()
         bcg = pyglet.image.TileableTexture.create_for_image(self.background)
         bcg.blit_tiled(0, 0, 0, width=self.width, height=self.height)
-        self.batch.draw()
+        self.main_screen.draw()
 
     def on_resize(self, width, height):
         super().on_resize(width, height)

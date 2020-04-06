@@ -7,11 +7,11 @@ gdzie niewymienione - docelowo:
 # Krok 1
 * (AM) generacja mapy
 * postać gracza:
-	* poruszanie
+	* poruszanie ✔
 	* opcjonalne ograniczenie czasu na wykonanie ruchu
 * (PT) nakładka graficzna:
-	* mapa, sprite gracza
-	* menu główne
+	* mapa, sprite gracza ✔ 
+	* menu główne ✔
 
 # Krok 2
 * przeciwnicy

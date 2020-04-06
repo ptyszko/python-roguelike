@@ -6,6 +6,7 @@ from util import tile
 
 creatures = Batch()
 
+
 class Creature(Sprite, ABC):
     def __init__(self, path, tile_width, tile_height, game_state: dict,
                  xpos=0, ypos=0, group=None):
@@ -38,4 +39,5 @@ class Creature(Sprite, ABC):
 
 class Player(Creature):
     def __init__(self, path, tile_width, tile_height, game_state, xpos=0, ypos=0, group=None):
-        super().__init__(path, tile_width, tile_height, game_state, xpos=xpos, ypos=ypos, group=group)
+        super().__init__(path, tile_width, tile_height,
+                         game_state, xpos=xpos, ypos=ypos, group=group)
