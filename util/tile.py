@@ -1,2 +1,3 @@
 FLOOR = '.'
 WALL = '#'
+STAIRS = '>'

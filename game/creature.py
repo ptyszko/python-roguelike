@@ -1,7 +1,7 @@
 from pyglet.sprite import Sprite
 from pyglet.image import load
 from pyglet.graphics import Batch
-from abc import ABC
+from abc import ABC, abstractmethod
 from util import tile
 
 creatures = Batch()
@@ -23,21 +23,33 @@ class Creature(Sprite, ABC):
         self.scale_x /= self.width / self.tile_width
         self.scale_y /= self.height / self.tile_height
 
-    def move(self, dx, dy):
-        if (
-            self.game['map']
-            [self.xpos+dx]
-            [self.ypos+dy]
-        ) != tile.WALL:
-            self.xpos += dx
-            self.ypos += dy
-            self.x += dx * self.tile_width
-            self.y += dy * self.tile_height
-
-        print(f'my pos is ({self.xpos}, {self.ypos})')
+    def update_pos(self):
+        self.update(
+            x=(self.xpos-1) * self.tile_width,
+            y=(self.ypos-1) * self.tile_height
+        )
 
 
 class Player(Creature):
     def __init__(self, path, tile_width, tile_height, game_state, xpos=0, ypos=0, group=None):
         super().__init__(path, tile_width, tile_height,
                          game_state, xpos=xpos, ypos=ypos, group=group)
+
+    def move(self, dx, dy):
+        if (
+            self.game['map']
+            [self.ypos+dy]
+            [self.xpos+dx]
+        ) != tile.WALL:
+            self.xpos += dx
+            self.ypos += dy
+            self.update_pos()
+            if (
+                self.game['map']
+                [self.ypos]
+                [self.xpos]
+            ) == tile.STAIRS:
+                print('GOING TO NEXT LEVEL')
+                self.game['level'] += 1
+                self.game['game_window'].draw_level(self.game['level'])
+        # print(f'my pos is ({self.xpos}, {self.ypos})')
