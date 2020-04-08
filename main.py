@@ -1,6 +1,5 @@
 import pyglet
 from game.mainmenu import MainMenu
-from game.gamewindow import GameEnd
 from time import sleep
 
 
@@ -11,6 +10,8 @@ class GameState:
         self.game_window = None
         self.pc = None
         self.next_stage = False
+        self.move_timeout = False
+        self.timeout_limit = 3
 
 
 game = GameState()
@@ -18,8 +19,4 @@ game = GameState()
 
 if __name__ == "__main__":
     MainMenu(game, resizable=True)
-    try:
-        pyglet.app.run()
-    except GameEnd:
-        sleep(1.5)
-        pyglet.app.exit()
+    pyglet.app.run()

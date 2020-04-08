@@ -31,9 +31,11 @@ class Creature(Sprite, ABC):
 
 
 class Player(Creature):
-    def __init__(self, path, tile_width, tile_height, game_state, xpos=0, ypos=0, group=None):
+    def __init__(self, path, tile_width, tile_height, game_state, 
+                 xpos=0, ypos=0, group=None):
         super().__init__(path, tile_width, tile_height,
-                         game_state, xpos=xpos, ypos=ypos, group=group)
+                         game_state, xpos=xpos, ypos=ypos, 
+                         group=group)
         self.game.pc = self
 
     def move(self, dx, dy):

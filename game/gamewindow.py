@@ -1,12 +1,8 @@
 import pyglet
 from util.levelgen import generate_level
 from util import keys, tile
-from .creature import Player
+from .creature import Player, creatures
 from random import randint
-
-
-class GameEnd(BaseException):
-    pass
 
 
 class Game(pyglet.window.Window):
@@ -21,13 +17,16 @@ class Game(pyglet.window.Window):
         self.stairs = pyglet.image.load('img/stairs.png').get_image_data()
         self.tile_width = self.floor.width
         self.tile_height = self.floor.height
-        self.pc = (
-            Player('img/player.png',
-                   self.tile_width, self.tile_height,
-                   xpos=1, ypos=1,
-                   game_state=self.game_state)
-        )
-
+        self.main_batch = pyglet.graphics.Batch()
+        self.pc = (Player(
+            'img/player.png',
+            self.tile_width, self.tile_height,
+            xpos=1, ypos=1,
+            game_state=self.game_state   
+        ))
+        
+        self.time_to_move = game_state.timeout_limit
+        
         # korekcja rozmiaru okna
         self.width -= self.width % self.tile_width
         self.height -= self.height % self.tile_height
@@ -43,9 +42,18 @@ class Game(pyglet.window.Window):
         )
 
         self.push_handlers(on_key_press=self.key_pressed)
-
         self.clear()
         self.draw_stage()
+        if game_state.move_timeout:
+            '''self.timer = pyglet.text.Label(
+                '{0:>.1f}'.format(self.time_to_move),
+                font_name='monospace', font_size=20,
+                anchor_x='right', anchor_y='top', 
+                y=self.height, x=self.width,
+                batch=creatures # tymczasowo (oby)
+            )'''
+            pyglet.clock.schedule_interval(time_step, 1/100, self)
+
 
     def draw_stage(self):
         self.game_state.next_stage = False
@@ -85,12 +93,13 @@ class Game(pyglet.window.Window):
         if symbol in keys.DIRECTIONAL:
             self.pc.move(*keys.DIRECTIONS_DICT[symbol])
             print(f'moved {keys.DIRECTIONS_DICT[symbol]}')
+            timeout(self)
         if self.game_state.next_stage:
             self.draw_stage()
         else:
             self.clear()
             self.background.blit(0, 0)
-            self.pc.draw() # w przyszłości Batch ze wszyskimi stworzeniami (może)
+            creatures.draw()
         
     def win_screen(self): #PLACEHOLDER
         from util.fonts import SERIF
@@ -105,3 +114,21 @@ class Game(pyglet.window.Window):
             anchor_x='center', anchor_y='center'
         ).draw()
         
+        @self.event('on_key_press')
+        def just_quit(*_):
+            pyglet.app.exit()
+    
+def timeout(self):
+    #print('no enemies to move yet')
+    self.time_to_move = self.game_state.timeout_limit
+    
+def time_step(dt, self):
+    if self.game_state.move_timeout:
+        self.time_to_move -= dt
+        # tself.timer.text = '{0:>.1f}'.format(self.time_to_move)
+        if self.time_to_move < 0:
+            print('timeout, but nothing to do yet')
+            timeout(self)
+    '''self.clear()
+    self.background.blit(0,0)
+    creatures.draw()'''
