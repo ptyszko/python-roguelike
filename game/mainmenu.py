@@ -1,7 +1,7 @@
 import pyglet
 from util import colors, fonts
 from util.button import Button
-from game.gamewindow import Game
+from .gamewindow import Game
 
 
 class MainMenu(pyglet.window.Window):
@@ -23,25 +23,6 @@ class MainMenu(pyglet.window.Window):
             anchor_x='center', anchor_y='center',
             **def_style
         )
-
-        '''self.start = pyglet.text.Label(
-            'Start game',
-            font_name=fonts.SANS, font_size=30,
-            y=220, color=colors.GREEN,
-            **def_style
-        )
-
-        self.menu = pyglet.text.Label(
-            'Settings',
-            font_name=fonts.SANS, font_size=30,
-            y=100, **def_style
-        )
-
-        self.exit = pyglet.text.Label(
-            'Quit',
-            font_name=fonts.SANS, font_size=30,
-            y=40, **def_style
-        )'''
         self.start = Button(
             text='Start Game',
             y=220, color=colors.GREEN,

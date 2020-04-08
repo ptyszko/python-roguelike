@@ -8,7 +8,7 @@ creatures = Batch()
 
 
 class Creature(Sprite, ABC):
-    def __init__(self, path, tile_width, tile_height, game_state: dict,
+    def __init__(self, path, tile_width, tile_height, game_state,
                  xpos=0, ypos=0, group=None):
         img = load(path)
         self.game = game_state
@@ -34,10 +34,11 @@ class Player(Creature):
     def __init__(self, path, tile_width, tile_height, game_state, xpos=0, ypos=0, group=None):
         super().__init__(path, tile_width, tile_height,
                          game_state, xpos=xpos, ypos=ypos, group=group)
+        self.game.pc = self
 
     def move(self, dx, dy):
         if (
-            self.game['map']
+            self.game.map
             [self.ypos+dy]
             [self.xpos+dx]
         ) != tile.WALL:
@@ -45,11 +46,10 @@ class Player(Creature):
             self.ypos += dy
             self.update_pos()
             if (
-                self.game['map']
+                self.game.map
                 [self.ypos]
                 [self.xpos]
             ) == tile.STAIRS:
-                print('GOING TO NEXT LEVEL')
-                self.game['level'] += 1
-                self.game['game_window'].draw_level(self.game['level'])
+                self.game.stage += 1
+                self.game.next_stage = True
         # print(f'my pos is ({self.xpos}, {self.ypos})')

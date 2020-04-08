@@ -1,16 +1,19 @@
 import pyglet
 from util.levelgen import generate_level
 from util import keys, tile
-from game.creature import Player
+from .creature import Player
 from random import randint
 
 
+class GameEnd(BaseException):
+    pass
+
+
 class Game(pyglet.window.Window):
-    def __init__(self, game_state: dict, *args, **kwargs):
+    def __init__(self, game_state, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.game_state = game_state
-        game_state['game_window'] = self
-        self.game_state['level'] = 1
+        game_state.game_window = self
 
         # ładowanie tile-ów (tymczasowe)
         self.floor = pyglet.image.load('img/dirt-floor.png').get_image_data()
@@ -18,7 +21,7 @@ class Game(pyglet.window.Window):
         self.stairs = pyglet.image.load('img/stairs.png').get_image_data()
         self.tile_width = self.floor.width
         self.tile_height = self.floor.height
-        game_state['pc'] = self.pc = (
+        self.pc = (
             Player('img/player.png',
                    self.tile_width, self.tile_height,
                    xpos=1, ypos=1,
@@ -42,20 +45,25 @@ class Game(pyglet.window.Window):
         self.push_handlers(on_key_press=self.key_pressed)
 
         self.clear()
-        self.draw_level(1)
+        self.draw_stage()
 
-    def draw_level(self, level_no: int):
+    def draw_stage(self):
+        self.game_state.next_stage = False
         self.clear()
-        self.set_caption(f'Level {level_no}')
-        # może później funkcja(level_no)?
+        if self.game_state.stage > 5:
+            self.win_screen()
+            return None
+        self.set_caption(f'Stage {self.game_state.stage}')
+
+        # może później funkcja(stage_no)?
         height = self.height // self.tile_height + 2
         width = self.width // self.tile_width + 2
-        self.game_state['map'] = tiles = generate_level(width, height)
-        for ycoord in range(1, height-1):
-            for xcoord in range(1, width-1):
+        self.game_state.map = generate_level(width, height)
+        for ycoord, row in enumerate(self.game_state.map[1:-1], 1):
+            for xcoord, cur_tile in enumerate(row[1:-1], 1):
                 try:
                     self.background.blit_into(
-                        source=self.tile_types[tiles[ycoord][xcoord]],
+                        source=self.tile_types[cur_tile],
                         x=(xcoord-1)*self.tile_width,
                         y=(ycoord-1)*self.tile_height,
                         z=0
@@ -66,7 +74,7 @@ class Game(pyglet.window.Window):
         while True:
             xcoord = randint(1, width-1)
             ycoord = randint(1, height-1)
-            if tiles[ycoord][xcoord] == tile.FLOOR:
+            if self.game_state.map[ycoord][xcoord] == tile.FLOOR:
                 break
         self.pc.xpos = xcoord
         self.pc.ypos = ycoord
@@ -76,6 +84,24 @@ class Game(pyglet.window.Window):
     def key_pressed(self, symbol, modifier):
         if symbol in keys.DIRECTIONAL:
             self.pc.move(*keys.DIRECTIONS_DICT[symbol])
-        self.clear()
-        self.background.blit(0, 0)
-        self.pc.draw()
+            print(f'moved {keys.DIRECTIONS_DICT[symbol]}')
+        if self.game_state.next_stage:
+            self.draw_stage()
+        else:
+            self.clear()
+            self.background.blit(0, 0)
+            self.pc.draw() # w przyszłości Batch ze wszyskimi stworzeniami (może)
+        
+    def win_screen(self): #PLACEHOLDER
+        from util.fonts import SERIF
+        from time import sleep
+        
+        self.set_caption('END')
+        self.pc.delete()
+        pyglet.text.Label(
+            'You Win!',
+            font_name=SERIF, font_size=50,
+            x=self.width//2, y=self.height//2,
+            anchor_x='center', anchor_y='center'
+        ).draw()
+        
