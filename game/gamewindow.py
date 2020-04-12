@@ -1,7 +1,7 @@
 import pyglet
 from util.levelgen import generate_level
-from util import keys, tile
-from .creature import Player, creatures
+from util import keys, tile, fonts
+from .creature import *
 from random import randint
 
 
@@ -22,11 +22,11 @@ class Game(pyglet.window.Window):
             'img/player.png',
             self.tile_width, self.tile_height,
             xpos=1, ypos=1,
-            game_state=self.game_state   
+            game_state=self.game_state
         ))
-        
+
         self.time_to_move = game_state.timeout_limit
-        
+
         # korekcja rozmiaru okna
         self.width -= self.width % self.tile_width
         self.height -= self.height % self.tile_height
@@ -43,19 +43,25 @@ class Game(pyglet.window.Window):
 
         self.push_handlers(on_key_press=self.key_pressed)
         self.clear()
-        self.draw_stage()
         if game_state.move_timeout:
-            '''self.timer = pyglet.text.Label(
+            self.timer = pyglet.text.Label(
                 '{0:>.1f}'.format(self.time_to_move),
                 font_name='monospace', font_size=20,
-                anchor_x='right', anchor_y='top', 
+                anchor_x='right', anchor_y='top',
                 y=self.height, x=self.width,
-                batch=creatures # tymczasowo (oby)
-            )'''
-            pyglet.clock.schedule_interval(time_step, 1/100, self)
-
+                batch=self.game_state.creatures  # tymczasowo (oby)
+            )
+            pyglet.clock.schedule_interval(self.time_step, 1/30)
+        self.draw_stage()
 
     def draw_stage(self):
+        if self.game_state.move_timeout:
+            pyglet.clock.unschedule(self.time_step)
+            self.time_to_move = self.game_state.move_timeout
+
+        for enemy in self.game_state.enemies:
+            enemy.delete()
+        self.game_state.enemies = []
         self.game_state.next_stage = False
         self.clear()
         if self.game_state.stage > 5:
@@ -88,47 +94,51 @@ class Game(pyglet.window.Window):
         self.pc.ypos = ycoord
         self.pc.update_pos()
         self.pc.draw()
+        if self.game_state.move_timeout:
+            pyglet.clock.schedule_interval(self.time_step, 1/30)
 
     def key_pressed(self, symbol, modifier):
         if symbol in keys.DIRECTIONAL:
             self.pc.move(*keys.DIRECTIONS_DICT[symbol])
             print(f'moved {keys.DIRECTIONS_DICT[symbol]}')
-            timeout(self)
+            self.update()
+        elif symbol == keys.E:
+            Enemy('img/enemy.png', self.tile_width, self.tile_height,
+                  self.game_state, self.pc.xpos, self.pc.ypos,
+                  move_pattern=cycle, move_params=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
         if self.game_state.next_stage:
             self.draw_stage()
         else:
             self.clear()
             self.background.blit(0, 0)
-            creatures.draw()
-        
-    def win_screen(self): #PLACEHOLDER
-        from util.fonts import SERIF
-        from time import sleep
-        
+            self.game_state.creatures.draw()
+
+    def win_screen(self):  # PLACEHOLDER
+        pyglet.clock.unschedule(self.time_step)
         self.set_caption('END')
         self.pc.delete()
         pyglet.text.Label(
             'You Win!',
-            font_name=SERIF, font_size=50,
+            font_name=fonts.SERIF, font_size=50,
             x=self.width//2, y=self.height//2,
             anchor_x='center', anchor_y='center'
         ).draw()
-        
+
         @self.event('on_key_press')
         def just_quit(*_):
             pyglet.app.exit()
-    
-def timeout(self):
-    #print('no enemies to move yet')
-    self.time_to_move = self.game_state.timeout_limit
-    
-def time_step(dt, self):
-    if self.game_state.move_timeout:
-        self.time_to_move -= dt
-        # tself.timer.text = '{0:>.1f}'.format(self.time_to_move)
-        if self.time_to_move < 0:
-            print('timeout, but nothing to do yet')
-            timeout(self)
-    '''self.clear()
-    self.background.blit(0,0)
-    creatures.draw()'''
+
+    def update(self):
+        #print('no enemies to move yet')
+        [en.move() for en in self.game_state.enemies]
+        self.time_to_move = self.game_state.timeout_limit
+
+    def time_step(self, dt):
+        if self.game_state.move_timeout:
+            self.time_to_move -= dt
+            self.timer.text = '{0:>.1f}'.format(self.time_to_move)
+            if self.time_to_move < 0:
+                self.update()
+        self.clear()
+        self.background.blit(0, 0)
+        self.game_state.creatures.draw()

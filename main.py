@@ -10,8 +10,10 @@ class GameState:
         self.game_window = None
         self.pc = None
         self.next_stage = False
-        self.move_timeout = False
+        self.move_timeout = True
         self.timeout_limit = 3
+        self.enemies = []
+        self.creatures = pyglet.graphics.Batch()
 
 
 game = GameState()

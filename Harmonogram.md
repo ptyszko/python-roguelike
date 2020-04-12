@@ -8,7 +8,7 @@ gdzie niewymienione - docelowo:
 * (AM) generacja mapy
 * postać gracza:
 	* poruszanie ✔
-	* opcjonalne ograniczenie czasu na wykonanie ruchu
+	* opcjonalne ograniczenie czasu na wykonanie ruchu ✔ - na razie ustawienie zaharkodowane
 * (PT) nakładka graficzna:
 	* mapa, sprite gracza ✔ 
 	* menu główne ✔
@@ -16,7 +16,7 @@ gdzie niewymienione - docelowo:
 # Krok 2
 * przeciwnicy
 * interakcje ze światem:
-	* schody do następnego poziomu
+	* schody do następnego poziomu ✔
 	* (może) pułapki
 
 # Krok 3
