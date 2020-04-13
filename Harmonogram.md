@@ -14,7 +14,7 @@ gdzie niewymienione - docelowo:
 	* menu główne ✔
 
 # Krok 2
-* przeciwnicy
+* przeciwnicy - schemat dodawania jest
 * interakcje ze światem:
 	* schody do następnego poziomu ✔
 	* (może) pułapki

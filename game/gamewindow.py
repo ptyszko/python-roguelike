@@ -1,8 +1,9 @@
 import pyglet
 from util.levelgen import generate_level
-from util import keys, tile, fonts
+from util import keys, tile, fonts, colors
 from . import creature
 from random import randint
+from time import strftime, gmtime
 
 
 class Game(pyglet.window.Window):
@@ -25,6 +26,7 @@ class Game(pyglet.window.Window):
             game_state=self.game_state
         ))
 
+        self.time_elapsed = 0
         self.time_to_move = game_state.timeout_limit
 
         # korekcja rozmiaru okna
@@ -46,12 +48,16 @@ class Game(pyglet.window.Window):
         if game_state.move_timeout:
             self.timer = pyglet.text.Label(
                 '{0:>.1f}'.format(self.time_to_move),
-                font_name='monospace', font_size=20,
+                font_name=fonts.MONO, font_size=20,
                 anchor_x='right', anchor_y='top',
                 y=self.height, x=self.width,
-                batch=self.game_state.creatures  # tymczasowo (oby)
+                batch=self.main_batch
             )
-            pyglet.clock.schedule_interval(self.time_step, 1/30)
+        pyglet.clock.schedule_interval(self.time_step, 1/30)
+        self.speedrun_counter = pyglet.text.Label(
+            '0:00.00', font_name=fonts.MONO, font_size=20,
+            color=colors.SEMI_WHITE, batch=self.main_batch
+        )
         self.draw_stage()
 
     def draw_stage(self):
@@ -64,7 +70,7 @@ class Game(pyglet.window.Window):
         self.game_state.enemies = []
         self.game_state.next_stage = False
         self.clear()
-        if self.game_state.stage > 5:
+        if self.game_state.stage > self.game_state.stages:
             self.win_screen()
             return None
         self.set_caption(f'Stage {self.game_state.stage}')
@@ -103,32 +109,30 @@ class Game(pyglet.window.Window):
             self.pc.move(*keys.DIRECTIONS_DICT[symbol])
             print(f'moved {keys.DIRECTIONS_DICT[symbol]}')
             self.update()
-        '''elif symbol == keys.E:
-            creature.Enemy('img/enemy.png', self.tile_width, self.tile_height,
-                  self.game_state, self.pc.xpos, self.pc.ypos,
-                  move_pattern=creature.cycle, 
-                  move_params=[(-1, -1), (-1, 1), (1, 1), (1, -1)])'''
         if self.game_state.next_stage:
             self.draw_stage()
-        else:
-            self.clear()
-            self.background.blit(0, 0)
-            self.game_state.creatures.draw()
 
     def win_screen(self):  # PLACEHOLDER
         pyglet.clock.unschedule(self.time_step)
         self.set_caption('END')
         self.pc.delete()
         pyglet.text.Label(
-            'You Win!',
+            '''You win!
+            Your time was:
+            {:2d}:{:02d}:{:02d}.{:02d}'''.format(
+                int(self.time_elapsed) // 360000 % 60, 
+                (int(self.time_elapsed) // 6000) % 60, 
+                (int(self.time_elapsed) // 100) % 60, 
+                int(self.time_elapsed) % 100
+            ),
             font_name=fonts.SERIF, font_size=50,
             x=self.width//2, y=self.height//2,
-            anchor_x='center', anchor_y='center'
+            anchor_x='center', anchor_y='center', 
+            multiline=True, width=self.width
         ).draw()
 
-        @self.event('on_key_press')
-        def just_quit(*_):
-            pyglet.app.exit()
+        self.pop_handlers()
+        self.push_handlers(on_key_press=lambda *_: pyglet.app.exit())
 
     def update(self):
         #print('no enemies to move yet')
@@ -141,6 +145,15 @@ class Game(pyglet.window.Window):
             self.timer.text = '{0:>.1f}'.format(self.time_to_move)
             if self.time_to_move < 0:
                 self.update()
+
+        self.time_elapsed += dt * 100
+        self.speedrun_counter.text = '{:2d}:{:02d}:{:02d}.{:02d}'.format(
+            int(self.time_elapsed) // 360000, 
+            (int(self.time_elapsed) // 6000) % 60, 
+            (int(self.time_elapsed) // 100) % 60, 
+            int(self.time_elapsed) % 100
+        )
         self.clear()
         self.background.blit(0, 0)
         self.game_state.creatures.draw()
+        self.main_batch.draw()

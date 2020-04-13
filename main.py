@@ -14,7 +14,7 @@ class GameState:
         self.timeout_limit = 3
         self.enemies = []
         self.creatures = pyglet.graphics.Batch()
-
+        self.stages = 3
 
 game = GameState()
 
