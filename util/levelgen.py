@@ -2,6 +2,8 @@ from typing import List
 from .tile import *
 from random import randint
 
+
+# do zamienienia przez generację poziomów
 def generate_level(width, height) -> List[List[str]]:
     ret = []
     for i in range(height):
@@ -14,6 +16,7 @@ def generate_level(width, height) -> List[List[str]]:
     add_game_elems(ret, width, height)
     return ret
 
+
 def add_game_elems(map_tiles, width, height):
     while True:
         x = randint(1, width-1)
@@ -21,6 +24,23 @@ def add_game_elems(map_tiles, width, height):
         if map_tiles[y][x] == FLOOR:
             map_tiles[y][x] = STAIRS
             break
-    
+# koniec części do zamienienia
+
+
+def get_clear_tile(game):
+    """zwraca tile po którym gracz może chodzić, 
+    który nie zawiera już innego stworzenia
+    """
+    x = y = 0
+    while (
+        game.map[y][x] == WALL 
+        or (game.pc.xpos == x and game.pc.ypos == y)
+        or any(x == e.xpos and y == e.ypos for e in game.enemies)
+    ):
+        y = randint(0, len(game.map)-1)
+        x = randint(0, len(game.map[0])-1)
+    return x,y
+
+
 if __name__ == "__main__":
     print(generate_level(10, 15))

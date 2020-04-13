@@ -1,19 +1,27 @@
 from pyglet.sprite import Sprite
 from pyglet.image import load
 from pyglet.graphics import Batch
-from abc import ABC, abstractmethod
+from abc import ABC
 from util import tile
+from util.levelgen import get_clear_tile
+from itertools import repeat, chain, cycle as _cycle
+from random import choice
 
 
 def still(self):
-    while True:
-        yield (0, 0)
+    return repeat((0,0))
 
 
 def cycle(self, *movements):
+    return _cycle(movements)
+
+
+def random(self, neighborhood=4):
+    moves = [(-1,0), (1,0), (0,1), (0,-1)] #sąsiedztwo von Neumanna
+    if neighborhood == 8: # sąsiedztwo Conwaya
+        moves += [(-1,-1), (-1,1), (1,-1), (1,1)]
     while True:
-        for m in movements:
-            yield m
+        yield choice(moves)
 
 
 class Creature(Sprite, ABC):
@@ -77,15 +85,36 @@ class Enemy(Creature):
                          xpos=xpos, ypos=ypos, group=group,
                          health=health)
         self.move_pattern = move_pattern(self, *move_params)
+        self.cycle = move_pattern == cycle
         self.game.enemies.append(self)
 
     def move(self):
         dx, dy = next(self.move_pattern)
-        if (
+        if ((
             self.game.map
             [self.ypos+dy]
             [self.xpos+dx]
-        ) != tile.WALL:
+        ) != tile.WALL 
+            or any (self.xpos+dx == e.xpos 
+                    and self.ypos+dy == e.ypos 
+                    for e in self.game.enemies)):
             self.xpos += dx
             self.ypos += dy
             self.update_pos()
+        elif self.cycle:
+            self.move_pattern = chain([(dx,dy)], self.move_pattern)
+
+
+def add_enemies(game):
+    # w przyszłości będzie zależne od poziomu
+    xp, yp = get_clear_tile(game)
+    nest = Enemy('img/enemy.png', 24, 24, game, xpos=xp, ypos=yp)
+
+    xp, yp = get_clear_tile(game)
+    slime = Enemy('img/enemy.png', 24, 24, game, xpos=xp, ypos=yp,
+                  move_pattern=cycle, 
+                  move_params=[(0,1), (0,0), (0,-1), (0,0)])
+
+    xp, yp = get_clear_tile(game)
+    bat = Enemy('img/enemy.png', 24, 24, game, xpos=xp, ypos=yp,
+                move_pattern=random)

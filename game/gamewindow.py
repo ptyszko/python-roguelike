@@ -1,7 +1,7 @@
 import pyglet
 from util.levelgen import generate_level
 from util import keys, tile, fonts
-from .creature import *
+from . import creature
 from random import randint
 
 
@@ -18,7 +18,7 @@ class Game(pyglet.window.Window):
         self.tile_width = self.floor.width
         self.tile_height = self.floor.height
         self.main_batch = pyglet.graphics.Batch()
-        self.pc = (Player(
+        self.pc = (creature.Player(
             'img/player.png',
             self.tile_width, self.tile_height,
             xpos=1, ypos=1,
@@ -57,7 +57,7 @@ class Game(pyglet.window.Window):
     def draw_stage(self):
         if self.game_state.move_timeout:
             pyglet.clock.unschedule(self.time_step)
-            self.time_to_move = self.game_state.move_timeout
+            self.time_to_move = self.game_state.timeout_limit
 
         for enemy in self.game_state.enemies:
             enemy.delete()
@@ -93,7 +93,8 @@ class Game(pyglet.window.Window):
         self.pc.xpos = xcoord
         self.pc.ypos = ycoord
         self.pc.update_pos()
-        self.pc.draw()
+        creature.add_enemies(self.game_state)
+        self.game_state.creatures.draw()
         if self.game_state.move_timeout:
             pyglet.clock.schedule_interval(self.time_step, 1/30)
 
@@ -102,10 +103,11 @@ class Game(pyglet.window.Window):
             self.pc.move(*keys.DIRECTIONS_DICT[symbol])
             print(f'moved {keys.DIRECTIONS_DICT[symbol]}')
             self.update()
-        elif symbol == keys.E:
-            Enemy('img/enemy.png', self.tile_width, self.tile_height,
+        '''elif symbol == keys.E:
+            creature.Enemy('img/enemy.png', self.tile_width, self.tile_height,
                   self.game_state, self.pc.xpos, self.pc.ypos,
-                  move_pattern=cycle, move_params=[(-1, -1), (-1, 1), (1, 1), (1, -1)])
+                  move_pattern=creature.cycle, 
+                  move_params=[(-1, -1), (-1, 1), (1, 1), (1, -1)])'''
         if self.game_state.next_stage:
             self.draw_stage()
         else:
