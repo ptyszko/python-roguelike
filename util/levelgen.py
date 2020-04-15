@@ -28,22 +28,6 @@ def add_game_elems(map_tiles, width, height):
 # koniec części do zamienienia
 """
 
-"""
-c - podłoga korytarza
-W - ściana
-f - podłoga celi
-b - krata
-d - schody dół
-u - schody góra
-S - kamień
-"""
-
-cell_size = 3
-corridors = 3
-cells = 4
-test_randomisation = False
-dungeon, layout = floor(cell_size, corridors, cells, test_randomisation)
-
 def get_clear_tile(game):
     """zwraca tile po którym gracz może chodzić, 
     który nie zawiera już innego stworzenia
@@ -58,6 +42,20 @@ def get_clear_tile(game):
         x = randint(0, len(game.map[0])-1)
     return x,y
 
+"""
+c - podłoga korytarza
+W - ściana
+f - podłoga celi
+b - krata
+d - schody dół
+u - schody góra
+S - kamień
+"""
 
 if __name__ == "__main__":
-    print(generate_level(10, 15))
+    # print(generate_level(10, 15)) - poprzednia komenda
+    cell_size = 3
+    corridors = 3
+    cells = 4
+    test_randomisation = False
+    dungeon, layout = floor(cell_size, corridors, cells, test_randomisation)
