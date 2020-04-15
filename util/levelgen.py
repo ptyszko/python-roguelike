@@ -1,8 +1,9 @@
 from typing import List
 from .tile import *
 from random import randint
+from .MazeGenerator import floor
 
-
+"""
 # do zamienienia przez generację poziomów
 def generate_level(width, height) -> List[List[str]]:
     ret = []
@@ -25,7 +26,23 @@ def add_game_elems(map_tiles, width, height):
             map_tiles[y][x] = STAIRS
             break
 # koniec części do zamienienia
+"""
 
+"""
+c - podłoga korytarza
+W - ściana
+f - podłoga celi
+b - krata
+d - schody dół
+u - schody góra
+S - kamień
+"""
+
+cell_size = 3
+corridors = 3
+cells = 4
+test_randomisation = False
+dungeon, layout = floor(cell_size, corridors, cells, test_randomisation)
 
 def get_clear_tile(game):
     """zwraca tile po którym gracz może chodzić, 
