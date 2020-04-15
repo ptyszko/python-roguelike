@@ -16,6 +16,7 @@ class GameState:
         self.creatures = pyglet.graphics.Batch()
         self.stages = 3
 
+
 game = GameState()
 
 
