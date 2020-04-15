@@ -144,8 +144,8 @@ def add_stone(map, cell_size, position, direction):
              [cell_size * position[1] + col]) = 'S'
     elif direction == (-1, 0):
         for col in range(cell_size):
-            map[cell_size * position[0] + cell_size -
-                1][cell_size * position[1] + col] = 'S'
+            (map[cell_size * position[0] + cell_size - 1]
+             [cell_size * position[1] + col]) = 'S'
     elif direction == (0, -1):
         for row in range(cell_size):
             (map[cell_size * position[0] + row]
@@ -153,7 +153,7 @@ def add_stone(map, cell_size, position, direction):
     elif direction == (0, 1):
         for row in range(cell_size):
             (map[cell_size * position[0] + row]
-             [cell_size * position[1] + cell_size - 1]='S')
+             [cell_size * position[1] + cell_size - 1]) = 'S'
 
 
 def remove_wall(map, cell_size, position, direction):
