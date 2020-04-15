@@ -120,14 +120,14 @@ class Game(pyglet.window.Window):
             '''You win!
             Your time was:
             {:2d}:{:02d}:{:02d}.{:02d}'''.format(
-                int(self.time_elapsed) // 360000 % 60, 
-                (int(self.time_elapsed) // 6000) % 60, 
-                (int(self.time_elapsed) // 100) % 60, 
+                int(self.time_elapsed) // 360000 % 60,
+                (int(self.time_elapsed) // 6000) % 60,
+                (int(self.time_elapsed) // 100) % 60,
                 int(self.time_elapsed) % 100
             ),
             font_name=fonts.SERIF, font_size=50,
             x=self.width//2, y=self.height//2,
-            anchor_x='center', anchor_y='center', 
+            anchor_x='center', anchor_y='center',
             multiline=True, width=self.width
         ).draw()
 
@@ -148,9 +148,9 @@ class Game(pyglet.window.Window):
 
         self.time_elapsed += dt * 100
         self.speedrun_counter.text = '{:2d}:{:02d}:{:02d}.{:02d}'.format(
-            int(self.time_elapsed) // 360000, 
-            (int(self.time_elapsed) // 6000) % 60, 
-            (int(self.time_elapsed) // 100) % 60, 
+            int(self.time_elapsed) // 360000,
+            (int(self.time_elapsed) // 6000) % 60,
+            (int(self.time_elapsed) // 100) % 60,
             int(self.time_elapsed) % 100
         )
         self.clear()

@@ -9,7 +9,7 @@ from random import choice
 
 
 def still(self):
-    return repeat((0,0))
+    return repeat((0, 0))
 
 
 def cycle(self, *movements):
@@ -17,9 +17,9 @@ def cycle(self, *movements):
 
 
 def random(self, neighborhood=4):
-    moves = [(-1,0), (1,0), (0,1), (0,-1)] #sąsiedztwo von Neumanna
-    if neighborhood == 8: # sąsiedztwo Conwaya
-        moves += [(-1,-1), (-1,1), (1,-1), (1,1)]
+    moves = [(-1, 0), (1, 0), (0, 1), (0, -1)]  # sąsiedztwo von Neumanna
+    if neighborhood == 8:  # sąsiedztwo Conwaya
+        moves += [(-1, -1), (-1, 1), (1, -1), (1, 1)]
     while True:
         yield choice(moves)
 
@@ -94,15 +94,15 @@ class Enemy(Creature):
             self.game.map
             [self.ypos+dy]
             [self.xpos+dx]
-        ) != tile.WALL 
-            or any (self.xpos+dx == e.xpos 
-                    and self.ypos+dy == e.ypos 
-                    for e in self.game.enemies)):
+        ) != tile.WALL
+            or any(self.xpos+dx == e.xpos
+                   and self.ypos+dy == e.ypos
+                   for e in self.game.enemies)):
             self.xpos += dx
             self.ypos += dy
             self.update_pos()
         elif self.cycle:
-            self.move_pattern = chain([(dx,dy)], self.move_pattern)
+            self.move_pattern = chain([(dx, dy)], self.move_pattern)
 
 
 def add_enemies(game):
@@ -112,8 +112,8 @@ def add_enemies(game):
 
     xp, yp = get_clear_tile(game)
     slime = Enemy('img/enemy.png', 24, 24, game, xpos=xp, ypos=yp,
-                  move_pattern=cycle, 
-                  move_params=[(0,1), (0,0), (0,-1), (0,0)])
+                  move_pattern=cycle,
+                  move_params=[(0, 1), (0, 0), (0, -1), (0, 0)])
 
     xp, yp = get_clear_tile(game)
     bat = Enemy('img/enemy.png', 24, 24, game, xpos=xp, ypos=yp,

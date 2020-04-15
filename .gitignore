@@ -3,3 +3,5 @@ lib/
 __pycache__/
 util/__pycache__/
 game/__pycache__/
+mygraph.png
+util/mygraph.png
