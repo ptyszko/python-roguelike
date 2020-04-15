@@ -34,13 +34,13 @@ def get_clear_tile(game):
     """
     x = y = 0
     while (
-        game.map[y][x] == WALL 
+        game.map[y][x] == WALL
         or (game.pc.xpos == x and game.pc.ypos == y)
         or any(x == e.xpos and y == e.ypos for e in game.enemies)
     ):
         y = randint(0, len(game.map)-1)
         x = randint(0, len(game.map[0])-1)
-    return x,y
+    return x, y
 
 """
 c - podłoga korytarza
