@@ -6,9 +6,9 @@ import random
 def in_maze(width, height, position):
     if (
         position[0] < 0
-        or position[0] >= width
+        or position[0] >= height
         or position[1] < 0
-        or position[1] >= height
+        or position[1] >= width
     ):
         return False
     return True
@@ -16,8 +16,8 @@ def in_maze(width, height, position):
 
 def maze(width, height, start):
     nodes = dict()
-    for a in range(width):
-        for b in range(height):
+    for a in range(height):
+        for b in range(width):
             nodes[(a, b)] = (False, None)
     nodes[start] = (True, float("inf"))
     wynik = nx.Graph()
@@ -34,12 +34,11 @@ def maze_recur(width, height, nodes, maze, current):
     for direction in range(4):
         neighbor = (current[0] + direction_map[direction][0],
                     current[1] + direction_map[direction][1])
-        if (in_maze(width, height, neighbor)
-                and nodes[neighbor][0] == False):
+        if in_maze(width, height, neighbor)\
+                and nodes[neighbor][0] is False:
             maze.add_edge(current, neighbor)
             nodes[neighbor] = (True, current)
             maze_recur(width, height, nodes, maze, neighbor)
-
 
 def rooms_layout(corridors, cells, start_staircase):
     return(maze(corridors * 3, cells + 2,
@@ -129,20 +128,20 @@ def default_floor(cell_size, corridors, cells):
 
 
 def room_type(position):
-    if (position[0] % 3) == 0:
+    if (position[1] % 3) == 0:
         return 'lef'
-    elif (position[0] % 3) == 1:
+    elif (position[1] % 3) == 1:
         return 'cor'
     else:
         return 'rig'
 
 
 def add_stone(map, cell_size, position, direction):
-    if direction == (1, 0):
+    if direction == (-1, 0):
         for col in range(cell_size):
             (map[cell_size * position[0]]
              [cell_size * position[1] + col]) = 'S'
-    elif direction == (-1, 0):
+    elif direction == (1, 0):
         for col in range(cell_size):
             (map[cell_size * position[0] + cell_size - 1]
              [cell_size * position[1] + col]) = 'S'
@@ -157,10 +156,10 @@ def add_stone(map, cell_size, position, direction):
 
 
 def remove_wall(map, cell_size, position, direction):
-    if direction == (1, 0):
+    if direction == (-1, 0):
         (map[cell_size*position[0]]
          [cell_size*position[1] + cell_size//2]) = 'f'
-    if direction == (-1, 0):
+    if direction == (1, 0):
         (map[cell_size*position[0] + cell_size - 1]
          [cell_size*position[1] + cell_size//2]) = 'f'
     if direction == (0, -1):
@@ -179,14 +178,14 @@ def floor(cell_size, corridors, cells, test_randomization):
     direction_map = [(1, 0), (0, -1), (-1, 0), (0, 1)]
     rows = cells + 2
     cols = corridors * 3
-    for row in range(1, rows-1):
+    for row in range(rows):
         for col in range(cols):
             for direction in range(4):
                 neighbor = (
                     row + direction_map[direction][0],
                     col + direction_map[direction][1]
                 )
-                if in_maze(rows, cols, neighbor):
+                if in_maze(cols, rows, neighbor):
                     if layout.has_edge((row, col), neighbor):
                         remove_wall(floor, cell_size, (row, col),
                                     direction_map[direction])
