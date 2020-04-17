@@ -15,7 +15,6 @@ def generate_level(width, height) -> List[List[str]]:
                 ret[i].append(FLOOR)
     return add_game_elems(ret, width, height)
 
-
 def add_game_elems(map_tiles, width, height):
     cell_size = 3
     corridors = width//9
