@@ -13,15 +13,16 @@ def generate_level(width, height) -> List[List[str]]:
                 ret[i].append(WALL)
             else:
                 ret[i].append(FLOOR)
-    add_game_elems(ret, width, height)
-    return ret
+    return add_game_elems(ret, width, height)
 
 
 def add_game_elems(map_tiles, width, height):
     cell_size = 3
-    corridors = width//3
-    cells = height//3
+    corridors = width//9
+    cells = height//3 - 2
     map_tiles, layout = floor(cell_size, corridors, cells, True)
+    print(f'height: {len(map_tiles)}, width: {len(map_tiles[0])}')
+    return map_tiles
 # koniec części do zamienienia
 
 

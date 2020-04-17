@@ -1,6 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import random
+from .tile import *
 
 
 def in_maze(width, height, position):
@@ -57,24 +58,24 @@ S - kamień
 
 
 def left_room(size):
-    wynik = [['f' for row in range(size)] for col in range(size)]
+    wynik = [[P_FLOOR for row in range(size)] for col in range(size)]
     for row in range(size):
-        wynik[0][row] = 'W'
-        wynik[size-1][row] = 'W'
+        wynik[0][row] = WALL
+        wynik[size-1][row] = WALL
     for col in range(size):
-        wynik[col][0] = 'W'
-        wynik[col][size-1] = 'b'
+        wynik[col][0] = WALL
+        wynik[col][size-1] = BARS
     return wynik
 
 
 def right_room(size):
-    wynik = [['f' for row in range(size)] for col in range(size)]
+    wynik = [[P_FLOOR for row in range(size)] for col in range(size)]
     for row in range(size):
-        wynik[0][row] = 'W'
-        wynik[size-1][row] = 'W'
+        wynik[0][row] = WALL
+        wynik[size-1][row] = WALL
     for col in range(size):
-        wynik[col][0] = 'b'
-        wynik[col][size-1] = 'W'
+        wynik[col][0] = BARS
+        wynik[col][size-1] = WALL
     return wynik
 
 
@@ -96,9 +97,9 @@ def add_corridor_slice(cell_size, map, position):
 
 def add_staircase(cell_size, map, position, up):
     if up:
-        stairs = 'u'
+        stairs = U_STAIRS
     else:
-        stairs = 'd'
+        stairs = D_STAIRS
     for row in range(cell_size):
         for col in range(cell_size):
             (map[cell_size * position[0] + row]
@@ -113,7 +114,7 @@ def add_staircase_slice(cell_size, map, position, up):
 
 
 def default_floor(cell_size, corridors, cells):
-    wynik = [['c' for row in range(cell_size * corridors * 3)]
+    wynik = [[C_FLOOR for row in range(cell_size * corridors * 3)]
              for col
              in range(cell_size * (cells + 2))]
     for corridor in range(corridors):
@@ -140,34 +141,34 @@ def add_stone(map, cell_size, position, direction):
     if direction == (-1, 0):
         for col in range(cell_size):
             (map[cell_size * position[0]]
-             [cell_size * position[1] + col]) = 'S'
+             [cell_size * position[1] + col]) = STONE
     elif direction == (1, 0):
         for col in range(cell_size):
             (map[cell_size * position[0] + cell_size - 1]
-             [cell_size * position[1] + col]) = 'S'
+             [cell_size * position[1] + col]) = STONE
     elif direction == (0, -1):
         for row in range(cell_size):
             (map[cell_size * position[0] + row]
-             [cell_size * position[1]]) = 'S'
+             [cell_size * position[1]]) = STONE
     elif direction == (0, 1):
         for row in range(cell_size):
             (map[cell_size * position[0] + row]
-             [cell_size * position[1] + cell_size - 1]) = 'S'
+             [cell_size * position[1] + cell_size - 1]) = STONE
 
 
 def remove_wall(map, cell_size, position, direction):
     if direction == (-1, 0):
         (map[cell_size*position[0]]
-         [cell_size*position[1] + cell_size//2]) = 'f'
+         [cell_size*position[1] + cell_size//2]) = P_FLOOR
     if direction == (1, 0):
         (map[cell_size*position[0] + cell_size - 1]
-         [cell_size*position[1] + cell_size//2]) = 'f'
+         [cell_size*position[1] + cell_size//2]) = P_FLOOR
     if direction == (0, -1):
         (map[cell_size*position[0] + cell_size//2]
-         [cell_size*position[1]]) = 'f'
+         [cell_size*position[1]]) = P_FLOOR
     if direction == (0, 1):
         (map[cell_size*position[0] + cell_size // 2]
-         [cell_size*position[1] + cell_size - 1]) = 'f'
+         [cell_size*position[1] + cell_size - 1]) = P_FLOOR
 
 
 def floor(cell_size, corridors, cells, test_randomization):

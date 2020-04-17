@@ -32,6 +32,8 @@ class Game(pyglet.window.Window):
         # korekcja rozmiaru okna
         self.width -= self.width % self.tile_width
         self.height -= self.height % self.tile_height
+        self.width = self.width//9 * 9
+        self.height = self.height // 3 * 3
         self.tile_types = {
             tile.WALL: self.wall,
             tile.FLOOR: self.floor,
