@@ -16,6 +16,9 @@ class Game(pyglet.window.Window):
         self.floor = pyglet.image.load('img/dirt-floor.png').get_image_data()
         self.wall = pyglet.image.load('img/dirt-wall.png').get_image_data()
         self.stairs = pyglet.image.load('img/stairs.png').get_image_data()
+        self.bars = pyglet.image.load('img/bars.png').get_image_data()
+        self.rubble = pyglet.image.load('img/rubble.png').get_image_data()
+        
         self.tile_width = self.floor.width
         self.tile_height = self.floor.height
         self.main_batch = pyglet.graphics.Batch()
@@ -38,6 +41,8 @@ class Game(pyglet.window.Window):
             tile.WALL: self.wall,
             tile.FLOOR: self.floor,
             tile.STAIRS: self.stairs,
+            tile.BARS: self.bars,
+            tile.STONE: self.rubble,
         }
         self.background = pyglet.image.Texture.create(
             height=self.height,

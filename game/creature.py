@@ -107,7 +107,7 @@ class Enemy(Creature):
 
 def add_enemies(game):
     # w przyszłości będzie zależne od poziomu
-    xp, yp = get_clear_tile(game)
+    '''xp, yp = get_clear_tile(game)
     nest = Enemy('img/enemy.png', 24, 24, game, xpos=xp, ypos=yp)
 
     xp, yp = get_clear_tile(game)
@@ -118,3 +118,5 @@ def add_enemies(game):
     xp, yp = get_clear_tile(game)
     bat = Enemy('img/enemy.png', 24, 24, game, xpos=xp, ypos=yp,
                 move_pattern=random)
+    '''
+    pass
