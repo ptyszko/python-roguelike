@@ -1,7 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import random
-
+from .tile import *
 
 def in_maze(width, height, position):
     if (
@@ -193,6 +193,12 @@ def floor(cell_size, corridors, cells, test_randomization):
                         if room_type((row, col)) == 'cor':
                             add_stone(floor, cell_size, (row, col),
                                       direction_map[direction])
+    for x in floor:
+        if x=='c' or x=='f':
+            x = FLOOR
+        elif x=='d' or x=='u':
+            x = STAIRS
+        else: x = WALL
     return floor, layout
 
 

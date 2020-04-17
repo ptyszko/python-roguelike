@@ -16,7 +16,6 @@ def generate_level(width, height) -> List[List[str]]:
     add_game_elems(ret, width, height)
     return ret
 
-
 def add_game_elems(map_tiles, width, height):
     cell_size = 3
     corridors = width//3
