@@ -196,7 +196,7 @@ def floor(cell_size, corridors, cells, test_randomization):
     return floor, layout
 
 
-def main():
+def debug_function():
     dungeon, layout = floor(3, 3, 4, True)
     pos = dict((n, n) for n in layout.nodes())
     nx.draw(layout, with_labels=True, pos=pos, font_weight='bold')
