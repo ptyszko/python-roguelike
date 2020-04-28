@@ -1,9 +1,8 @@
-FLOOR = '.'
 #WALL = '#'
-STAIRS = '>'
 
-C_FLOOR = P_FLOOR = FLOOR
-D_STAIRS = U_STAIRS = STAIRS
+
+C_FLOOR = P_FLOOR = '.'
+D_STAIRS = U_STAIRS = '>'
 
 '''C_FLOOR = 'c'
 P_FLOOR = 'f'
@@ -14,6 +13,10 @@ U_STAIRS = 'u'
 '''
 WALL = 'W'
 STONE = 'S'
+
+FLOOR = {P_FLOOR, C_FLOOR}
+STAIRS = {D_STAIRS, U_STAIRS}
+TRAVERSABLE = STAIRS | FLOOR
 
 """
 c - podłoga korytarza

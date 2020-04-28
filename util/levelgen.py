@@ -12,7 +12,7 @@ def generate_level(width, height) -> List[List[str]]:
             if i*j == 0 or i == height-1 or j == width-1:
                 ret[i].append(WALL)
             else:
-                ret[i].append(FLOOR)
+                ret[i].append(C_FLOOR)
     return add_game_elems(ret, width, height)
 
 def add_game_elems(map_tiles, width, height):
@@ -20,7 +20,7 @@ def add_game_elems(map_tiles, width, height):
     corridors = width//9
     cells = height//3 - 2
     map_tiles, layout = floor(cell_size, corridors, cells, True)
-    print(f'height: {len(map_tiles)}, width: {len(map_tiles[0])}')
+    # print(f'height: {len(map_tiles)}, width: {len(map_tiles[0])}')
     return map_tiles
 # koniec części do zamienienia
 
@@ -31,11 +31,11 @@ def get_clear_tile(game):
     """
     x = y = 0
     while (
-        game.map[y][x] == WALL
+        game.map[y][x] not in FLOOR
         or (game.pc.xpos == x and game.pc.ypos == y)
         or any(x == e.xpos and y == e.ypos for e in game.enemies)
     ):
-        y = randint(0, len(game.map)-1)
+        y = randint(3, len(game.map)-4)
         x = randint(0, len(game.map[0])-1)
     return x, y
 
@@ -48,6 +48,3 @@ d - schody dół
 u - schody góra
 S - kamień
 """
-
-if __name__ == "__main__":
-    print(generate_level(10, 15))

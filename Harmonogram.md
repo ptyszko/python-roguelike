@@ -5,7 +5,7 @@ gdzie niewymienione - docelowo:
 * PT od strony graficznej (okna, sprite-y, wejście od gracza itp.)
 
 # Krok 1
-* (AM) generacja mapy
+* (AM) generacja mapy - 90%
 * postać gracza:
 	* poruszanie ✔
 	* opcjonalne ograniczenie czasu na wykonanie ruchu ✔ - na razie ustawienie zaharkodowane
@@ -14,7 +14,7 @@ gdzie niewymienione - docelowo:
 	* menu główne ✔
 
 # Krok 2
-* przeciwnicy - schemat dodawania jest
+* przeciwnicy - schemat dodawania i interakacja z graczem
 * interakcje ze światem:
 	* schody do następnego poziomu ✔
 	* (może) pułapki

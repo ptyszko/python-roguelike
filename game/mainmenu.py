@@ -50,12 +50,12 @@ class MainMenu(pyglet.window.Window):
         bcg.blit_tiled(0, 0, 0, width=self.width, height=self.height)
         self.main_screen.draw()
 
-    def on_resize(self, width, height):
+    '''def on_resize(self, width, height):
         super().on_resize(width, height)
         for button in self.buttons:
             button.x = width//2
         self.title.x = width//2
-        self.title.y = height - 50
+        self.title.y = height - 50'''
 
     def on_key_press(self, symbol, modifiers):
         super().on_key_press(symbol, modifiers)
@@ -70,7 +70,11 @@ class MainMenu(pyglet.window.Window):
                                   % len(self.buttons))
             self.buttons[self.active_button].color = colors.GREEN
         elif symbol == pyglet.window.key.ENTER:
-            self.buttons[self.active_button]()
+            self.buttons[self.active_button]('enter')
+        elif symbol == pyglet.window.key.RIGHT:
+            self.buttons[self.active_button]('right')
+        elif symbol == pyglet.window.key.LEFT:
+            self.buttons[self.active_button]('left')
         elif symbol == pyglet.window.key.F1:
             print(self)
 
@@ -80,8 +84,6 @@ class MainMenu(pyglet.window.Window):
 
     def new_game(self):
         Game(
-            width=self.width,
-            height=self.height,
             game_state=self.game_state,
             caption='Level -1'  # placeholder
         )

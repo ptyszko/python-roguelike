@@ -11,15 +11,17 @@ class GameState:
         self.pc = None
         self.next_stage = False
         self.move_timeout = True
-        self.timeout_limit = 3
+        self.timeout_limit = 3 # sekundy
         self.enemies = []
         self.creatures = pyglet.graphics.Batch()
         self.stages = 3
+        self.width = 36 # w tile-ach
+        self.height = 24 # j.w
 
 
 game = GameState()
 
 
 if __name__ == "__main__":
-    MainMenu(game, resizable=True)
+    win = MainMenu(game)
     pyglet.app.run()
