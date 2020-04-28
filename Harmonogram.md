@@ -8,7 +8,7 @@ gdzie niewymienione - docelowo:
 * (AM) generacja mapy - 90%
 * postać gracza:
 	* poruszanie ✔
-	* opcjonalne ograniczenie czasu na wykonanie ruchu ✔ - na razie ustawienie zaharkodowane
+	* opcjonalne ograniczenie czasu na wykonanie ruchu ✔ - ~~na razie ustawienie zaharkodowane~~ ustawienia zrobione
 * (PT) nakładka graficzna:
 	* mapa, sprite gracza ✔ 
 	* menu główne ✔
@@ -17,12 +17,12 @@ gdzie niewymienione - docelowo:
 * przeciwnicy - schemat dodawania i interakacja z graczem
 * interakcje ze światem:
 	* schody do następnego poziomu ✔
-	* (może) pułapki
+	* ~~(może) pułapki~~ 
 
 # Krok 3
 * przedmioty
 * statystyki postaci
-* warunek wygranej
+* warunek wygranej - podstawa jest
 
 # Krok 4
 * Regulacja poziomu trudności
