@@ -2,11 +2,26 @@ from pyglet.sprite import Sprite
 from pyglet.image import load
 from pyglet.graphics import Batch
 from pyglet.text import Label
+
 from util import tile
 from util.levelgen import get_clear_tile
 from util.fonts import SANS
 from itertools import repeat, chain, cycle as _cycle
-from random import choice
+from random import choice, normalvariate
+from json import loads
+
+'''
+RANDOMIZED_STATS = {
+    'health', 'damage', 'exp'
+}
+
+LEVELED_STATS = {
+    'health', 'damage', 'gold'
+}
+'''
+RANDOMIZED_STATS = LEVELED_STATS = set()
+LEVELING_FACTOR = 1/20
+VAR = 1/10
 
 
 def still(self):
@@ -27,17 +42,26 @@ def random(self, neighborhood=4, freq=1):
         move = (move+1) % freq
 
 
+patterns = {
+    'still': still, 'cycle': cycle,
+    'random': random
+}
+
+
 class Creature(Sprite):
     def __init__(self, path, tile_width, tile_height, game_state,
-                 xpos=1, ypos=1, group=None, health=5, name='none'):
+                 xpos=0, ypos=0, group=None, health=5, defence=0, name='none'):
         img = load(path)
         self.name = name
         self.health = self.maxhealth = health
         self.game = game_state
         self.tile_width = tile_width
         self.tile_height = tile_height
-        self.xpos = xpos
-        self.ypos = ypos
+        if xpos == ypos == 0:
+            self.xpos, self.ypos = get_clear_tile(game)
+        else:    
+            self.xpos = xpos
+            self.ypos = ypos
         super().__init__(img, x=(xpos-1)*tile_width, y=(ypos-1)*tile_height,
                          batch=game_state.creatures, group=group,
                          usage='dynamic', subpixel=False)
@@ -69,6 +93,7 @@ class Player(Creature):
                          game_state, xpos=xpos, ypos=ypos,
                          group=group, name='Player')
         self.game.pc = self
+        self.exp = 0
         self.status_indicator = Label(
             x = self.game.game_window.width,
             y = self.game.game_window.height-40,
@@ -122,7 +147,10 @@ class Enemy(Creature):
         super().__init__(path, tile_width, tile_height, game_state,
                          xpos=xpos, ypos=ypos, group=group,
                          health=health, name=name)
-        self.move_pattern = move_pattern(self, *move_params)
+        if type(move_pattern) == str:
+            self.move_pattern = patterns[move_pattern](self, *move_params)
+        else:
+            self.move_pattern = move_pattern(self, *move_params)
         self.cycle = move_pattern == cycle
         self.game.enemies.append(self)
 
@@ -157,6 +185,21 @@ class Enemy(Creature):
             self.game.enemies.remove(self)
             self.delete() 
 
+    @staticmethod
+    def from_json(path, game):
+        with open(path, 'r') as json:
+            base_stats = loads(''.join(json.readlines()))
+        for stat in LEVELED_STATS:
+            base_stats[stat] *= 1 + LEVELING_FACTOR*game.stage
+        for stat in RANDOMIZED_STATS:
+            base_stats[stat] *= normalvariate(1, VAR)
+        for stat in LEVELED_STATS|RANDOMIZED_STATS:
+            base_stats[stat] = int(base_stats[stat])
+            
+        xp, yp = get_clear_tile(game)
+        return Enemy(tile_height=24, tile_width=24, game_state=game, xpos=xp, ypos=yp, **base_stats)
+        
+
 def add_enemies(game):
     # w przyszłości będzie zależne od poziomu
     xp, yp = get_clear_tile(game)
@@ -168,5 +211,4 @@ def add_enemies(game):
                   move_params=[(0, 1), (0, 0), (0, -1), (0, 0)])
 
     xp, yp = get_clear_tile(game)
-    bat = Enemy('img/enemy.png', 24, 24, game, xpos=xp, ypos=yp,
-                move_pattern=random)
+    bat = Enemy.from_json('enemies/bat.json', game)

@@ -14,14 +14,14 @@ gdzie niewymienione - docelowo:
 	* menu główne ✔
 
 # Krok 2
-* przeciwnicy - schemat dodawania i interakacja z graczem
+* przeciwnicy - schemat dodawania (schematy ruchu i JSON) i interakacja z graczem
 * interakcje ze światem:
 	* schody do następnego poziomu ✔
 	* ~~(może) pułapki~~ 
 
 # Krok 3
 * przedmioty
-* statystyki postaci
+* statystyki postaci - punkty zdrowia
 * warunek wygranej - podstawa jest
 
 # Krok 4
