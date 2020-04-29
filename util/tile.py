@@ -15,6 +15,8 @@ U_STAIRS = 'u'
 WALL = 'W'
 STONE = 'S'
 
+STARTPOINT = 'P'
+
 """
 c - podłoga korytarza
 W - ściana
@@ -23,4 +25,5 @@ b - krata
 d - schody dół
 u - schody góra
 S - kamień
+P - początek
 """

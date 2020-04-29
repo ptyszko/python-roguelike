@@ -41,9 +41,12 @@ def maze_recur(width, height, nodes, maze, current):
             nodes[neighbor] = (True, current)
             maze_recur(width, height, nodes, maze, neighbor)
 
-def rooms_layout(corridors, cells, start_staircase):
+def rooms_layout(corridors, cells, start_staircase, start_direction_up):
+    start_x = 1 + 3 * start_staircase
+    start_y = cells + 1
+    if start_direction_up: start_y = 1
     return(maze(corridors * 3, cells + 2,
-                (1 + 3 * start_staircase, cells + 1)))
+                (start_x, start_y)))
 
 
 """
@@ -54,6 +57,7 @@ b - krata
 d - schody dół
 u - schody góra
 S - kamień
+P - punkt startowy
 """
 
 
@@ -171,11 +175,9 @@ def remove_wall(map, cell_size, position, direction):
          [cell_size*position[1] + cell_size - 1]) = P_FLOOR
 
 
-def floor(cell_size, corridors, cells, test_randomization):
+def floor(cell_size, corridors, cells, start_staircase, start_direction_up):
     floor = default_floor(cell_size, corridors, cells)
-    layout = rooms_layout(corridors, cells, 0)
-    if not test_randomization:
-        return floor, layout
+    layout = rooms_layout(corridors, cells, start_staircase, start_direction_up)
     direction_map = [(1, 0), (0, -1), (-1, 0), (0, 1)]
     rows = cells + 2
     cols = corridors * 3
@@ -194,6 +196,10 @@ def floor(cell_size, corridors, cells, test_randomization):
                         if room_type((row, col)) == 'cor':
                             add_stone(floor, cell_size, (row, col),
                                       direction_map[direction])
+    start_row = start_staircase * cell_size + cell_size//2
+    start_col = cell_size + cell_size//2
+    if not start_direction_up: start_col += (cells-1) * cell_size
+    floor[start_row][start_col] = STARTPOINT
     return floor, layout
 
 
@@ -204,7 +210,3 @@ def debug_function():
     plt.savefig("mygraph.png")
     for i in range(len(dungeon)):
         print(''.join(dungeon[i]))
-
-
-if __name__ == "__main__":
-    main()
