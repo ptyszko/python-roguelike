@@ -4,16 +4,19 @@ from random import randint
 from .MazeGenerator import floor
 
 # do zamienienia przez generację poziomów
+
+
 def generate_level(width, height) -> List[List[str]]:
     ret = []
     for i in range(height):
         ret.append([])
-        for j in range(width):
+        '''for j in range(width):
             if i*j == 0 or i == height-1 or j == width-1:
                 ret[i].append(WALL)
             else:
-                ret[i].append(C_FLOOR)
+                ret[i].append(C_FLOOR)'''
     return add_game_elems(ret, width, height)
+
 
 def add_game_elems(map_tiles, width, height):
     start_staircase = 0
@@ -21,7 +24,8 @@ def add_game_elems(map_tiles, width, height):
     cell_size = 3
     corridors = width//9
     cells = height//3 - 2
-    map_tiles, layout = floor(cell_size, corridors, cells, start_staircase, start_direction_up)
+    map_tiles, layout = floor(cell_size, corridors,
+                              cells, start_staircase, start_direction_up)
     #print(f'height: {len(map_tiles)}, width: {len(map_tiles[0])}')
     return map_tiles
 # koniec części do zamienienia
@@ -40,6 +44,7 @@ def get_clear_tile(game):
         y = randint(3, len(game.map)-4)
         x = randint(0, len(game.map[0])-1)
     return x, y
+
 
 """
 c - podłoga korytarza

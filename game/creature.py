@@ -59,7 +59,7 @@ class Creature(Sprite):
         self.tile_height = tile_height
         if xpos == ypos == 0:
             self.xpos, self.ypos = get_clear_tile(game)
-        else:    
+        else:
             self.xpos = xpos
             self.ypos = ypos
         super().__init__(img, x=(xpos-1)*tile_width, y=(ypos-1)*tile_height,
@@ -79,10 +79,11 @@ class Creature(Sprite):
 
     def on_damage(self, damage, source):
         self.health -= damage
-        self.game.xprint(source.name, 'attacks', self.name, 'for', damage, 'damage.')
-        
+        self.game.xprint(source.name, 'attacks', self.name,
+                         'for', damage, 'damage.')
+
     def attack(self, target):
-        damage = 1 # w przyszłości zależne od statystyk (może)
+        damage = 1  # w przyszłości zależne od statystyk (może)
         target.on_damage(damage, self)
 
 
@@ -95,8 +96,8 @@ class Player(Creature):
         self.game.pc = self
         self.exp = 0
         self.status_indicator = Label(
-            x = self.game.game_window.width,
-            y = self.game.game_window.height-40,
+            x=self.game.game_window.width,
+            y=self.game.game_window.height-40,
             width=100, multiline=True, font_name=SANS,
             font_size=20, anchor_x='right', anchor_y='top',
             batch=self.game.game_window.main_batch
@@ -105,10 +106,10 @@ class Player(Creature):
     def move(self, dx, dy):
         new_x = self.xpos+dx
         new_y = self.ypos+dy
-        enemy = next((m for m in self.game.enemies 
-                      if m.xpos == new_x 
+        enemy = next((m for m in self.game.enemies
+                      if m.xpos == new_x
                       and m.ypos == new_y), None)
-        
+
         if enemy is not None:
             self.attack(enemy)
         elif (
@@ -117,7 +118,7 @@ class Player(Creature):
             [new_x]
         ) in tile.TRAVERSABLE:
             self.xpos = new_x
-            self.ypos =new_y
+            self.ypos = new_y
             self.update_pos()
             if (
                 self.game.map
@@ -133,7 +134,7 @@ class Player(Creature):
         self.update_status()
         if self.health <= 0:
             self.game.game_window.lose()
-    
+
     def update_status(self):
         self.status_indicator.text = f'''HP: {self.health}/{self.maxhealth}
 x: {self.xpos}
@@ -159,31 +160,31 @@ class Enemy(Creature):
         new_x = self.xpos+dx
         new_y = self.ypos+dy
         if (
-            self.game.pc.xpos == new_x 
+            self.game.pc.xpos == new_x
             and self.game.pc.ypos == new_y
         ):
             self.attack(self.game.pc)
         elif (
             0 < new_x < self.game.width-1
             and 0 < new_y < self.game.height-1
-            
+
             and self.game.map[new_y][new_x]
             in tile.TRAVERSABLE
             and not any(new_x == e.xpos
-                   and new_y == e.ypos
-                   for e in self.game.enemies)
+                        and new_y == e.ypos
+                        for e in self.game.enemies)
         ):
             self.xpos += dx
             self.ypos += dy
             self.update_pos()
         elif self.cycle:
             self.move_pattern = chain([(dx, dy)], self.move_pattern)
-            
+
     def on_damage(self, damage, source):
         super().on_damage(damage, source)
         if self.health <= 0:
             self.game.enemies.remove(self)
-            self.delete() 
+            self.delete()
 
     @staticmethod
     def from_json(path, game):
@@ -193,12 +194,12 @@ class Enemy(Creature):
             base_stats[stat] *= 1 + LEVELING_FACTOR*game.stage
         for stat in RANDOMIZED_STATS:
             base_stats[stat] *= normalvariate(1, VAR)
-        for stat in LEVELED_STATS|RANDOMIZED_STATS:
+        for stat in LEVELED_STATS | RANDOMIZED_STATS:
             base_stats[stat] = int(base_stats[stat])
-            
+
         xp, yp = get_clear_tile(game)
         return Enemy(tile_height=24, tile_width=24, game_state=game, xpos=xp, ypos=yp, **base_stats)
-        
+
 
 def add_enemies(game):
     # w przyszłości będzie zależne od poziomu

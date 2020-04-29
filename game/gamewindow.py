@@ -29,10 +29,10 @@ class Game(pyglet.window.Window):
         self.width = (game_state.width-2) * self.tile_width + 100
         self.height = (game_state.height-2) * self.tile_height + 40
         game_state.status_bar = pyglet.text.Label(
-            x=0, y=self.height, anchor_y='top', batch=self.main_batch, 
+            x=0, y=self.height, anchor_y='top', batch=self.main_batch,
             font_name=fonts.SANS, font_size=20
         )
-        
+
         self.pc = (creature.Player(
             'img/player.png',
             self.tile_width, self.tile_height,
@@ -44,6 +44,7 @@ class Game(pyglet.window.Window):
             tile.WALL: self.wall,
             tile.C_FLOOR: self.floor,
             tile.P_FLOOR: self.floor,
+            tile.STARTPOINT: self.floor,
             tile.U_STAIRS: self.stairs,
             tile.D_STAIRS: self.stairs,
             tile.BARS: self.bars,
@@ -81,7 +82,7 @@ class Game(pyglet.window.Window):
         self.game_state.enemies = []
         self.game_state.next_stage = False
         self.clear()
-        
+
         if self.game_state.stage > self.game_state.stages:
             self.win_screen()
             return None
@@ -93,6 +94,9 @@ class Game(pyglet.window.Window):
         for ycoord, row in enumerate(self.game_state.map[1:-1], 1):
             for xcoord, cur_tile in enumerate(row[1:-1], 1):
                 try:
+                    if cur_tile == tile.STARTPOINT:
+                        self.pc.xpos = xcoord
+                        self.pc.ypos = ycoord
                     self.background.blit_into(
                         source=self.tile_types[cur_tile],
                         x=(xcoord-1)*self.tile_width,
@@ -103,13 +107,6 @@ class Game(pyglet.window.Window):
                     # błędne i puste tile nie są rysowane w ogóle
                     pass
         self.background.blit(0, 0)
-        while True:
-            xcoord = randint(1, width-1)
-            ycoord = randint(3, height-3)
-            if self.game_state.map[ycoord][xcoord] in tile.FLOOR:
-                break
-        self.pc.xpos = xcoord
-        self.pc.ypos = ycoord
         self.pc.update_pos()
         self.pc.update_status()
         creature.add_enemies(self.game_state)

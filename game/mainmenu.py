@@ -49,7 +49,7 @@ class MainMenu(pyglet.window.Window):
             action=self.close,
             **def_style
         )
-        
+
         def_style['batch'] = self.settings_screen
 
         self.done = Button(
@@ -89,7 +89,6 @@ class MainMenu(pyglet.window.Window):
             multiline=True, width=self.width,
             **def_style
         )
-
 
         self.bcg = pyglet.image.TileableTexture.create_for_image(
             self.background)
