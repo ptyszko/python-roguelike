@@ -5,3 +5,6 @@ util/__pycache__/
 game/__pycache__/
 mygraph.png
 util/mygraph.png
+*.spec
+build/
+dist/

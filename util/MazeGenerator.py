@@ -1,5 +1,5 @@
 import networkx as nx
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import random
 from .tile import *
 
@@ -202,7 +202,7 @@ def floor(cell_size, corridors, cells, start_staircase, start_direction_up):
     floor[start_row][start_col] = STARTPOINT
     return floor, layout
 
-
+'''
 def debug_function():
     dungeon, layout = floor(3, 3, 4, True)
     pos = dict((n, n) for n in layout.nodes())
@@ -210,3 +210,4 @@ def debug_function():
     plt.savefig("mygraph.png")
     for i in range(len(dungeon)):
         print(''.join(dungeon[i]))
+'''

@@ -5,24 +5,24 @@ gdzie niewymienione - docelowo:
 * PT od strony graficznej (okna, sprite-y, wejście od gracza itp.)
 
 # Krok 1
-* (AM) generacja mapy
+* (AM) generacja mapy - 90%
 * postać gracza:
 	* poruszanie ✔
-	* opcjonalne ograniczenie czasu na wykonanie ruchu ✔ - na razie ustawienie zaharkodowane
+	* opcjonalne ograniczenie czasu na wykonanie ruchu ✔ - ~~na razie ustawienie zaharkodowane~~ ustawienia zrobione
 * (PT) nakładka graficzna:
 	* mapa, sprite gracza ✔ 
 	* menu główne ✔
 
 # Krok 2
-* przeciwnicy - schemat dodawania jest
+* przeciwnicy - schemat dodawania (schematy ruchu i JSON) i interakacja z graczem
 * interakcje ze światem:
 	* schody do następnego poziomu ✔
-	* (może) pułapki
+	* ~~(może) pułapki~~ 
 
 # Krok 3
 * przedmioty
-* statystyki postaci
-* warunek wygranej
+* statystyki postaci - punkty zdrowia
+* warunek wygranej - podstawa jest
 
 # Krok 4
 * Regulacja poziomu trudności
