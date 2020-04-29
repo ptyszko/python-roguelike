@@ -21,6 +21,18 @@ class Game(pyglet.window.Window):
         self.tile_width = self.floor.width
         self.tile_height = self.floor.height
         self.main_batch = pyglet.graphics.Batch()
+
+        self.time_elapsed = 0
+        self.time_to_move = game_state.timeout_limit
+
+        # korekcja rozmiaru okna
+        self.width = (game_state.width-2) * self.tile_width + 100
+        self.height = (game_state.height-2) * self.tile_height + 40
+        game_state.status_bar = pyglet.text.Label(
+            x=0, y=self.height, anchor_y='top', batch=self.main_batch, 
+            font_name=fonts.SANS, font_size=20
+        )
+        
         self.pc = (creature.Player(
             'img/player.png',
             self.tile_width, self.tile_height,
@@ -28,12 +40,6 @@ class Game(pyglet.window.Window):
             game_state=self.game_state
         ))
 
-        self.time_elapsed = 0
-        self.time_to_move = game_state.timeout_limit
-
-        # korekcja rozmiaru okna
-        self.width = (game_state.width-2) * self.tile_width
-        self.height = (game_state.height-2) * self.tile_height
         self.tile_types = {
             tile.WALL: self.wall,
             tile.C_FLOOR: self.floor,
@@ -105,12 +111,14 @@ class Game(pyglet.window.Window):
         self.pc.xpos = xcoord
         self.pc.ypos = ycoord
         self.pc.update_pos()
+        self.pc.update_status()
         creature.add_enemies(self.game_state)
         self.game_state.creatures.draw()
         if self.game_state.move_timeout:
             pyglet.clock.schedule_interval(self.time_step, 1/30)
 
     def key_pressed(self, symbol, modifier):
+        self.game_state.xprint()
         if symbol in keys.DIRECTIONAL:
             self.pc.move(*keys.DIRECTIONS_DICT[symbol])
             # print(f'moved {keys.DIRECTIONS_DICT[symbol]}')

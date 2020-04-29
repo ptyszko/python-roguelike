@@ -1,9 +1,10 @@
 from pyglet.sprite import Sprite
 from pyglet.image import load
 from pyglet.graphics import Batch
-from abc import ABC
+from pyglet.text import Label
 from util import tile
 from util.levelgen import get_clear_tile
+from util.fonts import SANS
 from itertools import repeat, chain, cycle as _cycle
 from random import choice
 
@@ -26,7 +27,7 @@ def random(self, neighborhood=4, freq=1):
         move = (move+1) % freq
 
 
-class Creature(Sprite, ABC):
+class Creature(Sprite):
     def __init__(self, path, tile_width, tile_height, game_state,
                  xpos=1, ypos=1, group=None, health=5, name='none'):
         img = load(path)
@@ -54,7 +55,7 @@ class Creature(Sprite, ABC):
 
     def on_damage(self, damage, source):
         self.health -= damage
-        print(source.name, 'attacks', self.name, 'for', damage, 'damage.')
+        self.game.xprint(source.name, 'attacks', self.name, 'for', damage, 'damage.')
         
     def attack(self, target):
         damage = 1 # w przyszłości zależne od statystyk (może)
@@ -68,6 +69,13 @@ class Player(Creature):
                          game_state, xpos=xpos, ypos=ypos,
                          group=group, name='Player')
         self.game.pc = self
+        self.status_indicator = Label(
+            x = self.game.game_window.width,
+            y = self.game.game_window.height-40,
+            width=100, multiline=True, font_name=SANS,
+            font_size=20, anchor_x='right', anchor_y='top',
+            batch=self.game.game_window.main_batch
+        )
 
     def move(self, dx, dy):
         new_x = self.xpos+dx
@@ -93,12 +101,18 @@ class Player(Creature):
             ) in tile.STAIRS:
                 self.game.stage += 1
                 self.game.next_stage = True
-        # print(f'my pos is ({self.xpos}, {self.ypos})')
+        self.update_status()
 
     def on_damage(self, damage, source):
         super().on_damage(damage, source)
+        self.update_status()
         if self.health <= 0:
             self.game.game_window.lose()
+    
+    def update_status(self):
+        self.status_indicator.text = f'''HP: {self.health}/{self.maxhealth}
+x: {self.xpos}
+y: {self.ypos}'''
 
 
 class Enemy(Creature):
@@ -122,7 +136,10 @@ class Enemy(Creature):
         ):
             self.attack(self.game.pc)
         elif (
-            self.game.map[new_y][new_x]
+            0 < new_x < self.game.width-1
+            and 0 < new_y < self.game.height-1
+            
+            and self.game.map[new_y][new_x]
             in tile.TRAVERSABLE
             and not any(new_x == e.xpos
                    and new_y == e.ypos

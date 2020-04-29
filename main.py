@@ -17,6 +17,7 @@ class GameState:
         self.stages = 3
         self.width = 36 # w tile-ach, wielokrotność 9
         self.height = 24 # wielokrotność 3
+        self.status_bar = None
         
     def change_size(self, param, change):
         if param == 'width' and self.width + change >=9:
@@ -32,6 +33,10 @@ class GameState:
             self.timeout_limit = 0
         else:
             self.timeout_limit += change
+            
+    def xprint(self, *args:tuple, **kwargs:dict):
+        sep = kwargs.get('sep', ' ')
+        self.status_bar.text = sep.join(str(a) for a in args)
              
 
 
