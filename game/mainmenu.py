@@ -12,7 +12,7 @@ class MainMenu(pyglet.window.Window):
         self.game_state = game_state
 
         self.set_minimum_size(width=480, height=320)
-        self.background = pyglet.image.load('img/wood_floor.png')
+        self.background = pyglet.image.load('img/dirt-floor.png')
         self.main_screen = pyglet.graphics.Batch()
         self.settings_screen = pyglet.graphics.Batch()
 

@@ -1,1 +1,2 @@
 pyglet>=1.5.0
+networkx>=2.3
