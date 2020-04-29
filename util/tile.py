@@ -14,6 +14,7 @@ U_STAIRS = 'u'
 WALL = 'W'
 STONE = 'S'
 
+STARTPOINT = 'P'
 FLOOR = {P_FLOOR, C_FLOOR}
 STAIRS = {D_STAIRS, U_STAIRS}
 TRAVERSABLE = STAIRS | FLOOR
@@ -26,4 +27,5 @@ b - krata
 d - schody dół
 u - schody góra
 S - kamień
+P - początek
 """
