@@ -9,10 +9,7 @@ from util.fonts import SANS
 from itertools import repeat, chain, cycle as _cycle
 from random import choice, normalvariate
 from json import loads
-<<<<<<< HEAD
 import numpy
-=======
->>>>>>> small_changes
 
 '''
 RANDOMIZED_STATS = {
@@ -45,7 +42,6 @@ def random(self, neighborhood=4, freq=1):
         yield choice(moves) if move == 0 else (0, 0)
         move = (move+1) % freq
 
-<<<<<<< HEAD
 def aggresive(self, game, neighbourhood=8):
     moves = [(-1, 0), (1, 0), (0, 1), (0, -1)]  # sąsiedztwo von Neumanna
     if neighbourhood == 8:  # sąsiedztwo Conwaya
@@ -80,15 +76,6 @@ patterns = {
     'steady': steady
 }
 
-=======
-
-patterns = {
-    'still': still, 'cycle': cycle,
-    'random': random
-}
-
-
->>>>>>> small_changes
 class Creature(Sprite):
     def __init__(self, path, tile_width, tile_height, game_state,
                  xpos=0, ypos=0, group=None, health=5, defence=0, name='none'):
@@ -99,11 +86,7 @@ class Creature(Sprite):
         self.tile_width = tile_width
         self.tile_height = tile_height
         if xpos == ypos == 0:
-<<<<<<< HEAD
-            self.xpos, self.ypos = get_clear_tile(game)
-=======
             self.xpos, self.ypos = get_clear_tile(game_state)
->>>>>>> small_changes
         else:
             self.xpos = xpos
             self.ypos = ypos
@@ -128,11 +111,7 @@ class Creature(Sprite):
                          'for', damage, 'damage.')
 
     def attack(self, target):
-<<<<<<< HEAD
-        damage = 1  # w przyszłości zależne od statystyk (może)
-=======
         damage = 1  # w przyszłości zależne od statystyk
->>>>>>> small_changes
         target.on_damage(damage, self)
 
 
@@ -198,19 +177,11 @@ class Enemy(Creature):
                          xpos=xpos, ypos=ypos, group=group,
                          health=health, name=name)
         if type(move_pattern) == str:
-<<<<<<< HEAD
             self.move_pattern = patterns[move_pattern](self, self.game, *move_params)
         else:
             self.move_pattern = move_pattern(self, self.game, *move_params)
         self.cycle = move_pattern == cycle
         self.game.enemies.append(self)
-=======
-            self.move_pattern = patterns[move_pattern](self, *move_params)
-        else:
-            self.move_pattern = move_pattern(self, *move_params)
-        self.cycle = move_pattern in {cycle, 'cycle'}
-        self.game.enemies.add(self)
->>>>>>> small_changes
 
     def move(self):
         dx, dy = next(self.move_pattern)
@@ -221,11 +192,8 @@ class Enemy(Creature):
             and self.game.pc.ypos == new_y
         ):
             self.attack(self.game.pc)
-<<<<<<< HEAD
-=======
             if self.cycle:
                 self.move_pattern = chain([(dx,dy)], self.move_pattern)
->>>>>>> small_changes
         elif (
             0 < new_x < self.game.width-1
             and 0 < new_y < self.game.height-1
@@ -260,24 +228,18 @@ class Enemy(Creature):
             base_stats[stat] = int(base_stats[stat])
 
         xp, yp = get_clear_tile(game)
-<<<<<<< HEAD
         if path == 'enemies/guard.json':
             return Enemy(tile_height=24, tile_width=24, game_state=game, xpos = 37, ypos = 24, **base_stats)
         if path == 'enemies/guard1.json':
             return Enemy(tile_height=24, tile_width=24, game_state=game, xpos = 22, ypos = 24, **base_stats)
         if path == 'enemies/guard2.json':
             return Enemy(tile_height=24, tile_width=24, game_state=game, xpos = 7, ypos = 24, **base_stats)
-=======
->>>>>>> small_changes
         return Enemy(tile_height=24, tile_width=24, game_state=game, xpos=xp, ypos=yp, **base_stats)
 
 
 def add_enemies(game):
     # w przyszłości będzie zależne od poziomu
-<<<<<<< HEAD
     """
-=======
->>>>>>> small_changes
     xp, yp = get_clear_tile(game)
     nest = Enemy('img/enemy.png', 24, 24, game, xpos=xp, ypos=yp)
 
@@ -285,7 +247,6 @@ def add_enemies(game):
     slime = Enemy('img/enemy.png', 24, 24, game, xpos=xp, ypos=yp,
                   move_pattern=cycle,
                   move_params=[(0, 1), (0, 0), (0, -1), (0, 0)])
-<<<<<<< HEAD
     """
 
     #bat = Enemy.from_json('enemies/bat.json', game)
@@ -304,8 +265,3 @@ def add_enemies(game):
     guard = Enemy.from_json('enemies/guard.json', game)
     guard1 = Enemy.from_json('enemies/guard1.json', game)
     guard2 = Enemy.from_json('enemies/guard2.json', game)
-=======
-
-    xp, yp = get_clear_tile(game)
-    bat = Enemy.from_json('enemies/bat.json', game)
->>>>>>> small_changes

@@ -3,18 +3,7 @@
 
 C_FLOOR = P_FLOOR = '.'
 D_STAIRS = U_STAIRS = '>'
-<<<<<<< HEAD
-
-'''C_FLOOR = 'c'
-P_FLOOR = 'f'
-'''
 BARS = 'b'
-'''D_STAIRS = 'd'
-U_STAIRS = 'u'
-'''
-=======
-BARS = 'b'
->>>>>>> small_changes
 WALL = 'W'
 STONE = 'S'
 
