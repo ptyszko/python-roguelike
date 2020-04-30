@@ -138,8 +138,6 @@ class MainMenu(pyglet.window.Window):
         self.close()
 
     def open_settings(self):
-        # TODO: Ustawienia
-        print('settings')
         for b in self.visible_buttons:
             b.color = colors.WHITE
         self.done.color = colors.GREEN

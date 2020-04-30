@@ -8,3 +8,4 @@ util/mygraph.png
 *.spec
 build/
 dist/
+.idea/

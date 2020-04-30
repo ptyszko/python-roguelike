@@ -6,7 +6,11 @@ from random import randint
 
 
 class Game(pyglet.window.Window):
+<<<<<<< HEAD
     def __init__(self, game_state, *args, **kwargs, ):
+=======
+    def __init__(self, game_state, *args, **kwargs):
+>>>>>>> small_changes
         super().__init__(*args, **kwargs)
         self.game_state = game_state
         game_state.game_window = self
@@ -71,9 +75,15 @@ class Game(pyglet.window.Window):
             '0:00.00', font_name=fonts.MONO, font_size=20,
             color=colors.SEMI_WHITE, batch=self.main_batch
         )
+<<<<<<< HEAD
         self.draw_stage(0,False)
 
     def draw_stage(self, start_staircase, start_direction_up):
+=======
+        self.draw_stage()
+
+    def draw_stage(self):
+>>>>>>> small_changes
         if self.game_state.move_timeout:
             pyglet.clock.unschedule(self.time_step)
             self.time_to_move = self.game_state.timeout_limit
@@ -90,7 +100,11 @@ class Game(pyglet.window.Window):
 
         height = self.game_state.height
         width = self.game_state.width
+<<<<<<< HEAD
         self.game_state.map = generate_level(width, height, start_staircase, start_direction_up)
+=======
+        self.game_state.map = generate_level(width, height)
+>>>>>>> small_changes
         for ycoord, row in enumerate(self.game_state.map[1:-1], 1):
             for xcoord, cur_tile in enumerate(row[1:-1], 1):
                 try:
@@ -116,15 +130,23 @@ class Game(pyglet.window.Window):
 
     def key_pressed(self, symbol, modifier):
         self.game_state.xprint()
+<<<<<<< HEAD
+=======
+        self.redraw()
+>>>>>>> small_changes
         if symbol in keys.DIRECTIONAL:
             self.pc.move(*keys.DIRECTIONS_DICT[symbol])
             # print(f'moved {keys.DIRECTIONS_DICT[symbol]}')
             self.update()
         if self.game_state.next_stage:
+<<<<<<< HEAD
             start_staircase = (self.pc.xpos - 5) // 15
             start_direction_up = True
             if self.pc.ypos > 15: start_direction_up = False
             self.draw_stage(start_staircase, start_direction_up)
+=======
+            self.draw_stage()
+>>>>>>> small_changes
 
     def win_screen(self):  # PLACEHOLDER
         pyglet.clock.unschedule(self.time_step)
@@ -180,6 +202,12 @@ class Game(pyglet.window.Window):
             (int(self.time_elapsed) // 100) % 60,
             int(self.time_elapsed) % 100
         )
+<<<<<<< HEAD
+=======
+        self.redraw()
+        
+    def redraw(self):
+>>>>>>> small_changes
         self.clear()
         self.background.blit(0, 0)
         self.game_state.creatures.draw()

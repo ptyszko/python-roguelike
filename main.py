@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+#!/usr/bin/python3
+>>>>>>> small_changes
 import pyglet
 from game.mainmenu import MainMenu
 from time import sleep
@@ -14,9 +18,15 @@ class GameState:
         self.timeout_limit = 3  # sekundy
         self.enemies = []
         self.creatures = pyglet.graphics.Batch()
+<<<<<<< HEAD
         self.stages = 10
         self.width = 45  # w tile-ach, wielokrotność 15
         self.height = 30  # wielokrotność 5
+=======
+        self.stages = 3
+        self.width = 36  # w tile-ach, wielokrotność 9
+        self.height = 24  # wielokrotność 3
+>>>>>>> small_changes
         self.status_bar = None
 
     def change_size(self, param, change):
