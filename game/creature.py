@@ -58,7 +58,7 @@ class Creature(Sprite):
         self.tile_width = tile_width
         self.tile_height = tile_height
         if xpos == ypos == 0:
-            self.xpos, self.ypos = get_clear_tile(game)
+            self.xpos, self.ypos = get_clear_tile(game_state)
         else:
             self.xpos = xpos
             self.ypos = ypos
@@ -83,7 +83,7 @@ class Creature(Sprite):
                          'for', damage, 'damage.')
 
     def attack(self, target):
-        damage = 1  # w przyszłości zależne od statystyk (może)
+        damage = 1  # w przyszłości zależne od statystyk
         target.on_damage(damage, self)
 
 
@@ -152,8 +152,8 @@ class Enemy(Creature):
             self.move_pattern = patterns[move_pattern](self, *move_params)
         else:
             self.move_pattern = move_pattern(self, *move_params)
-        self.cycle = move_pattern == cycle
-        self.game.enemies.append(self)
+        self.cycle = move_pattern in {cycle, 'cycle'}
+        self.game.enemies.add(self)
 
     def move(self):
         dx, dy = next(self.move_pattern)
@@ -164,6 +164,8 @@ class Enemy(Creature):
             and self.game.pc.ypos == new_y
         ):
             self.attack(self.game.pc)
+            if self.cycle:
+                self.move_pattern = chain([(dx,dy)], self.move_pattern)
         elif (
             0 < new_x < self.game.width-1
             and 0 < new_y < self.game.height-1

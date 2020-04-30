@@ -3,14 +3,7 @@
 
 C_FLOOR = P_FLOOR = '.'
 D_STAIRS = U_STAIRS = '>'
-
-'''C_FLOOR = 'c'
-P_FLOOR = 'f'
-'''
 BARS = 'b'
-'''D_STAIRS = 'd'
-U_STAIRS = 'u'
-'''
 WALL = 'W'
 STONE = 'S'
 
