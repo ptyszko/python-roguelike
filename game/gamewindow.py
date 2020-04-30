@@ -71,7 +71,7 @@ class Game(pyglet.window.Window):
             '0:00.00', font_name=fonts.MONO, font_size=20,
             color=colors.SEMI_WHITE, batch=self.main_batch
         )
-        self.draw_stage(0,False)
+        self.draw_stage(0, False)
 
     def draw_stage(self, start_staircase, start_direction_up):
         if self.game_state.move_timeout:
@@ -79,7 +79,7 @@ class Game(pyglet.window.Window):
             self.time_to_move = self.game_state.timeout_limit
         for enemy in self.game_state.enemies:
             enemy.delete()
-        self.game_state.enemies = []
+        self.game_state.enemies = set()
         self.game_state.next_stage = False
         self.clear()
 
@@ -90,7 +90,8 @@ class Game(pyglet.window.Window):
 
         height = self.game_state.height
         width = self.game_state.width
-        self.game_state.map = generate_level(width, height, start_staircase, start_direction_up)
+        self.game_state.map = generate_level(
+            width, height, start_staircase, start_direction_up)
         for ycoord, row in enumerate(self.game_state.map[1:-1], 1):
             for xcoord, cur_tile in enumerate(row[1:-1], 1):
                 try:
@@ -124,7 +125,8 @@ class Game(pyglet.window.Window):
         if self.game_state.next_stage:
             start_staircase = (self.pc.xpos - 5) // 15
             start_direction_up = True
-            if self.pc.ypos > 15: start_direction_up = False
+            if self.pc.ypos > 15:
+                start_direction_up = False
             self.draw_stage(start_staircase, start_direction_up)
 
     def win_screen(self):  # PLACEHOLDER
@@ -182,7 +184,7 @@ class Game(pyglet.window.Window):
             int(self.time_elapsed) % 100
         )
         self.redraw()
-        
+
     def redraw(self):
         self.clear()
         self.background.blit(0, 0)

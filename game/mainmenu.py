@@ -62,8 +62,8 @@ class MainMenu(pyglet.window.Window):
             text='Map width: {self.game.width}', y=240,
             action={
                 'enter': lambda: None,
-                'right': lambda: self.game_state.change_size('width', 9),
-                'left': lambda: self.game_state.change_size('width', -9)
+                'right': lambda: self.game_state.change_size('width', 1),
+                'left': lambda: self.game_state.change_size('width', -1)
             },
             **def_style
         )
@@ -72,8 +72,8 @@ class MainMenu(pyglet.window.Window):
             text='Map height: {self.game.height}', y=180,
             action={
                 'enter': lambda: None,
-                'right': lambda: self.game_state.change_size('height', 3),
-                'left': lambda: self.game_state.change_size('height', -3)
+                'right': lambda: self.game_state.change_size('height', 1),
+                'left': lambda: self.game_state.change_size('height', -1)
             },
             **def_style
         )

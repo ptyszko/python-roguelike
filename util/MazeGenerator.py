@@ -2,6 +2,8 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import random
 from .tile import *
+
+
 def in_maze(width, height, position):
     if (
         position[0] < 0
@@ -11,6 +13,8 @@ def in_maze(width, height, position):
     ):
         return False
     return True
+
+
 def maze(width, height, start):
     nodes = dict()
     for a in range(height):
@@ -21,6 +25,8 @@ def maze(width, height, start):
     wynik.add_nodes_from(nodes)
     maze_recur(width, height, nodes, wynik, start)
     return wynik
+
+
 def maze_recur(width, height, nodes, maze, current):
     if(current == float("inf")):
         return()
@@ -34,9 +40,13 @@ def maze_recur(width, height, nodes, maze, current):
             maze.add_edge(current, neighbor)
             nodes[neighbor] = (True, current)
             maze_recur(width, height, nodes, maze, neighbor)
+
+
 def rooms_layout(corridors, cells, start_staircase, start_direction_up):
     return(maze(corridors * 3, cells,
                 (0, 0)))
+
+
 """
 c - podłoga korytarza
 W - ściana
@@ -47,6 +57,8 @@ u - schody góra
 S - kamień
 P - punkt startowy
 """
+
+
 def left_room(size):
     wynik = [[P_FLOOR for row in range(size)] for col in range(size)]
     for row in range(size):
@@ -56,6 +68,8 @@ def left_room(size):
         wynik[col][0] = WALL
         wynik[col][size-1] = BARS
     return wynik
+
+
 def right_room(size):
     wynik = [[P_FLOOR for row in range(size)] for col in range(size)]
     for row in range(size):
@@ -65,6 +79,8 @@ def right_room(size):
         wynik[col][0] = BARS
         wynik[col][size-1] = WALL
     return wynik
+
+
 def add_room(cell_size, map, position, left):
     if left:
         room = left_room(cell_size)
@@ -74,9 +90,13 @@ def add_room(cell_size, map, position, left):
         for col in range(cell_size):
             (map[cell_size * position[0] + row]
              [cell_size * position[1] + col]) = room[row][col]
+
+
 def add_corridor_slice(cell_size, map, position):
     add_room(cell_size, map, (position[0], 3*position[1]), True)
     add_room(cell_size, map, (position[0], 3*position[1]+2), False)
+
+
 def add_staircase(cell_size, map, position, up):
     if up:
         stairs = U_STAIRS
@@ -86,11 +106,15 @@ def add_staircase(cell_size, map, position, up):
         for col in range(cell_size):
             (map[cell_size * position[0] + row]
              [cell_size * position[1] + col]) = stairs
+
+
 def add_staircase_slice(cell_size, map, position, up):
     for s in range(3):
         add_staircase(cell_size, map,
                       (position[0], 3*position[1]+s),
                       up)
+
+
 def default_floor(cell_size, corridors, cells):
     wynik = [[C_FLOOR for row in range(cell_size * corridors * 3)]
              for col
@@ -104,6 +128,8 @@ def default_floor(cell_size, corridors, cells):
         add_staircase_slice(cell_size, wynik,
                             (cells+1, corridor), False)
     return wynik
+
+
 def room_type(position):
     if (position[1] % 3) == 0:
         return 'lef'
@@ -111,6 +137,8 @@ def room_type(position):
         return 'cor'
     else:
         return 'rig'
+
+
 def add_stone(map, cell_size, position, direction):
     if direction == (-1, 0):
         for col in range(cell_size):
@@ -128,6 +156,8 @@ def add_stone(map, cell_size, position, direction):
         for row in range(cell_size):
             (map[cell_size * position[0] + row]
              [cell_size * position[1] + cell_size - 1]) = STONE
+
+
 def remove_wall(map, cell_size, position, direction):
     if direction == (-1, 0):
         (map[cell_size*position[0]]
@@ -141,6 +171,8 @@ def remove_wall(map, cell_size, position, direction):
     if direction == (0, 1):
         (map[cell_size*position[0] + cell_size // 2]
          [cell_size*position[1] + cell_size - 1]) = P_FLOOR
+
+
 def floor(cell_size, corridors, cells, start_staircase, start_direction_up):
     floor = default_floor(cell_size, corridors, cells)
     layout = rooms_layout(
@@ -168,15 +200,18 @@ def floor(cell_size, corridors, cells, start_staircase, start_direction_up):
     if not start_direction_up:
         start_row -= (cells-1) * cell_size
     floor[start_row][start_col] = STARTPOINT
-    end_staircase = random.randint(0,corridors-1)
+    end_staircase = random.randint(0, corridors-1)
     for cor in range(corridors):
-        add_stone(floor,cell_size,(0,cor * 3 + 1),(1,0))
-        add_stone(floor,cell_size,(cells+1,cor * 3 + 1),(-1,0))
+        add_stone(floor, cell_size, (0, cor * 3 + 1), (1, 0))
+        add_stone(floor, cell_size, (cells+1, cor * 3 + 1), (-1, 0))
     if start_direction_up:
-        remove_wall(floor,cell_size,(0,end_staircase * 3 + 1),(1,0))
+        remove_wall(floor, cell_size, (0, end_staircase * 3 + 1), (1, 0))
     else:
-        remove_wall(floor,cell_size,(cells+1,end_staircase * 3 + 1),(-1,0))
+        remove_wall(floor, cell_size,
+                    (cells+1, end_staircase * 3 + 1), (-1, 0))
     return floor, layout
+
+
 '''
 def debug_function():
     dungeon, layout = floor(3, 3, 4, True)

@@ -13,18 +13,19 @@ class GameState:
         self.next_stage = False
         self.move_timeout = True
         self.timeout_limit = 3  # sekundy
-        self.enemies = []
+        self.enemies = set()
         self.creatures = pyglet.graphics.Batch()
         self.stages = 10
+        self.cell_size = 5
         self.width = 45  # w tile-ach, wielokrotność 15
         self.height = 30  # wielokrotność 5
         self.status_bar = None
 
     def change_size(self, param, change):
-        if param == 'width' and self.width + change >= 9:
-            self.width += change
-        elif self.height + change >= 9:
-            self.height += change
+        if param == 'width' and self.width > self.cell_size*3:
+            self.width += change * self.cell_size * 3
+        elif self.height > self.cell_size*3:
+            self.height += change * self.cell_size
 
     def change_timeout(self, change):
         if self.timeout_limit + change < -0.05:

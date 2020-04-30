@@ -9,7 +9,11 @@ from util.fonts import SANS
 from itertools import repeat, chain, cycle as _cycle
 from random import choice, normalvariate
 from json import loads
-import numpy
+
+
+def sign(x):
+    return x and x/abs(x)
+
 
 '''
 RANDOMIZED_STATS = {
@@ -42,33 +46,30 @@ def random(self, neighborhood=4, freq=1):
         yield choice(moves) if move == 0 else (0, 0)
         move = (move+1) % freq
 
-def aggresive(self, game, neighbourhood=8):
-    moves = [(-1, 0), (1, 0), (0, 1), (0, -1)]  # sąsiedztwo von Neumanna
-    if neighbourhood == 8:  # sąsiedztwo Conwaya
-        moves += [(-1, -1), (-1, 1), (1, -1), (1, 1)]
-    while True:
-        if numpy.abs(self.xpos - game.pc.xpos) < 3 and numpy.abs(self.ypos - game.pc.ypos) < 3:
-            dx = -numpy.sign(self.xpos - game.pc.xpos)
-            dy = -numpy.sign(self.ypos - game.pc.ypos)
-            yield (dx,dy)
-        else:
-            yield (0,0)
 
-def steady(self, game, neighbourhood=4):
-    moves = [(-1, 0), (1, 0), (0, 1), (0, -1)]  # sąsiedztwo von Neumanna
-    if neighbourhood == 8:  # sąsiedztwo Conwaya
-        moves += [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+def aggresive(self, neighbourhood=8):
+    game = self.game
     while True:
-        if numpy.abs(self.ypos - game.pc.ypos) == 1 and numpy.abs(self.xpos - game.pc.xpos) == 0:
-            dx = 0
-            dy = -numpy.sign(self.ypos - game.pc.ypos)
-        elif numpy.abs(self.xpos - game.pc.xpos) < 3 and numpy.abs(self.ypos - game.pc.ypos) < 3:
-            dx = -numpy.sign(self.xpos - game.pc.xpos)
-            dy = 0
+        if abs(self.xpos - game.pc.xpos) < 3 and abs(self.ypos - game.pc.ypos) < 3:
+            dx = -sign(self.xpos - game.pc.xpos)
+            dy = -sign(self.ypos - game.pc.ypos)
+            yield (dx, dy)
         else:
-            dx = 0
-            dy = 0
-        yield (dx,dy)
+            yield (0, 0)
+
+
+def steady(self, neighbourhood=4):
+    game = self.game
+    while True:
+        dx = dy = 0
+        if (abs(self.ypos-game.pc.ypos) == 1 
+            and self.xpos-game.pc.xpos == 0):
+            dy = game.pc.ypos - self.ypos
+        elif (abs(self.xpos - game.pc.xpos) < 3 
+              and abs(self.ypos - game.pc.ypos) < 3):
+            dx = -sign(self.xpos - game.pc.xpos)
+        yield (dx, dy)
+
 
 patterns = {
     'still': still, 'cycle': cycle,
@@ -76,10 +77,13 @@ patterns = {
     'steady': steady
 }
 
+
 class Creature(Sprite):
     def __init__(self, path, tile_width, tile_height, game_state,
                  xpos=0, ypos=0, group=None, health=5, defence=0, name='none'):
         img = load(path)
+        self.damage = 1  # w przyszłości zależne od statystyk
+        self.defence = defence
         self.name = name
         self.health = self.maxhealth = health
         self.game = game_state
@@ -90,16 +94,17 @@ class Creature(Sprite):
         else:
             self.xpos = xpos
             self.ypos = ypos
-        super().__init__(img, x=(xpos-1)*tile_width, y=(ypos-1)*tile_height,
-                         batch=game_state.creatures, group=group,
-                         usage='dynamic', subpixel=False)
+        super().__init__(
+            img, x=(xpos-1)*tile_width, y=(ypos-1)*tile_height,
+            batch=game_state.creatures, group=group,
+            usage='dynamic', subpixel=False
+        )
 
         # po całościowej konstrukcji normalizujemy rozmiar
         self.scale_x /= self.width / self.tile_width
         self.scale_y /= self.height / self.tile_height
 
     def update_pos(self):
-        # print(self.xpos, self.ypos)
         self.update(
             x=(self.xpos-1) * self.tile_width,
             y=(self.ypos-1) * self.tile_height
@@ -111,8 +116,7 @@ class Creature(Sprite):
                          'for', damage, 'damage.')
 
     def attack(self, target):
-        damage = 1  # w przyszłości zależne od statystyk
-        target.on_damage(damage, self)
+        target.on_damage(self.damage - target.defence, self)
 
 
 class Player(Creature):
@@ -140,19 +144,12 @@ class Player(Creature):
 
         if enemy is not None:
             self.attack(enemy)
-        elif (
-            self.game.map
-            [new_y]
-            [new_x]
-        ) in tile.TRAVERSABLE:
+        elif self.game.map[new_y][new_x] in tile.TRAVERSABLE:
             self.xpos = new_x
             self.ypos = new_y
             self.update_pos()
-            if (
-                self.game.map
-                [self.ypos]
-                [self.xpos]
-            ) in tile.STAIRS:
+            
+            if self.game.map[self.ypos][self.xpos] in tile.STAIRS:
                 self.game.stage += 1
                 self.game.next_stage = True
         self.update_status()
@@ -177,11 +174,12 @@ class Enemy(Creature):
                          xpos=xpos, ypos=ypos, group=group,
                          health=health, name=name)
         if type(move_pattern) == str:
-            self.move_pattern = patterns[move_pattern](self, self.game, *move_params)
+            self.move_pattern = patterns[move_pattern](
+                self, *move_params)
         else:
-            self.move_pattern = move_pattern(self, self.game, *move_params)
+            self.move_pattern = move_pattern(self, *move_params)
         self.cycle = move_pattern == cycle
-        self.game.enemies.append(self)
+        self.game.enemies.add(self)
 
     def move(self):
         dx, dy = next(self.move_pattern)
@@ -193,16 +191,15 @@ class Enemy(Creature):
         ):
             self.attack(self.game.pc)
             if self.cycle:
-                self.move_pattern = chain([(dx,dy)], self.move_pattern)
+                self.move_pattern = chain([(dx, dy)], self.move_pattern)
         elif (
             0 < new_x < self.game.width-1
             and 0 < new_y < self.game.height-1
-
             and self.game.map[new_y][new_x]
             in tile.TRAVERSABLE
             and not any(new_x == e.xpos
                         and new_y == e.ypos
-                        for e in self.game.enemies)
+                        for e in self.game.enemies - {self})
         ):
             self.xpos += dx
             self.ypos += dy
@@ -217,7 +214,7 @@ class Enemy(Creature):
             self.delete()
 
     @staticmethod
-    def from_json(path, game):
+    def from_json(path, game, xp=0, yp=0):
         with open(path, 'r') as json:
             base_stats = loads(''.join(json.readlines()))
         for stat in LEVELED_STATS:
@@ -227,41 +224,15 @@ class Enemy(Creature):
         for stat in LEVELED_STATS | RANDOMIZED_STATS:
             base_stats[stat] = int(base_stats[stat])
 
-        xp, yp = get_clear_tile(game)
-        if path == 'enemies/guard.json':
-            return Enemy(tile_height=24, tile_width=24, game_state=game, xpos = 37, ypos = 24, **base_stats)
-        if path == 'enemies/guard1.json':
-            return Enemy(tile_height=24, tile_width=24, game_state=game, xpos = 22, ypos = 24, **base_stats)
-        if path == 'enemies/guard2.json':
-            return Enemy(tile_height=24, tile_width=24, game_state=game, xpos = 7, ypos = 24, **base_stats)
+        if xp == yp == 0:
+            xp, yp = get_clear_tile(game)
         return Enemy(tile_height=24, tile_width=24, game_state=game, xpos=xp, ypos=yp, **base_stats)
 
 
 def add_enemies(game):
     # w przyszłości będzie zależne od poziomu
-    """
-    xp, yp = get_clear_tile(game)
-    nest = Enemy('img/enemy.png', 24, 24, game, xpos=xp, ypos=yp)
+    for i in range(10):
+        Enemy.from_json('enemies/bandit.json', game)
 
-    xp, yp = get_clear_tile(game)
-    slime = Enemy('img/enemy.png', 24, 24, game, xpos=xp, ypos=yp,
-                  move_pattern=cycle,
-                  move_params=[(0, 1), (0, 0), (0, -1), (0, 0)])
-    """
-
-    #bat = Enemy.from_json('enemies/bat.json', game)
-
-
-    bandit1 = Enemy.from_json('enemies/bandit.json', game)
-    bandit2 = Enemy.from_json('enemies/bandit.json', game)
-    bandit3 = Enemy.from_json('enemies/bandit.json', game)
-    bandit4 = Enemy.from_json('enemies/bandit.json', game)
-    bandit5 = Enemy.from_json('enemies/bandit.json', game)
-    bandit6 = Enemy.from_json('enemies/bandit.json', game)
-    bandit7 = Enemy.from_json('enemies/bandit.json', game)
-    bandit8 = Enemy.from_json('enemies/bandit.json', game)
-    bandit9 = Enemy.from_json('enemies/bandit.json', game)
-
-    guard = Enemy.from_json('enemies/guard.json', game)
-    guard1 = Enemy.from_json('enemies/guard1.json', game)
-    guard2 = Enemy.from_json('enemies/guard2.json', game)
+    for x in range(7, game.width, 15):
+        Enemy.from_json('enemies/guard.json', game, xp=x, yp=game.height-6)
