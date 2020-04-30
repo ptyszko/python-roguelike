@@ -116,6 +116,7 @@ class Game(pyglet.window.Window):
 
     def key_pressed(self, symbol, modifier):
         self.game_state.xprint()
+        self.redraw()
         if symbol in keys.DIRECTIONAL:
             self.pc.move(*keys.DIRECTIONS_DICT[symbol])
             # print(f'moved {keys.DIRECTIONS_DICT[symbol]}')
@@ -177,6 +178,9 @@ class Game(pyglet.window.Window):
             (int(self.time_elapsed) // 100) % 60,
             int(self.time_elapsed) % 100
         )
+        self.redraw()
+        
+    def redraw(self):
         self.clear()
         self.background.blit(0, 0)
         self.game_state.creatures.draw()

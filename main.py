@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import pyglet
 from game.mainmenu import MainMenu
 from time import sleep
