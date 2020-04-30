@@ -26,7 +26,7 @@ def add_game_elems(map_tiles, width, height):
     cells = height//3 - 2
     map_tiles, layout = floor(cell_size, corridors,
                               cells, start_staircase, start_direction_up)
-    #print(f'height: {len(map_tiles)}, width: {len(map_tiles[0])}')
+    # print(f'height: {len(map_tiles)}, width: {len(map_tiles[0])}')
     return map_tiles
 # koniec części do zamienienia
 
