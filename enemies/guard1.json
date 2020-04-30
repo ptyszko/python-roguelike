@@ -1,0 +1,6 @@
+{
+	"name":"guard1",
+	"health":4,
+	"move_pattern": "steady",
+	"path": "img/guardian.png"
+}

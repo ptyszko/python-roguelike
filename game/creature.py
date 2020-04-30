@@ -9,6 +9,7 @@ from util.fonts import SANS
 from itertools import repeat, chain, cycle as _cycle
 from random import choice, normalvariate
 from json import loads
+import numpy
 
 '''
 RANDOMIZED_STATS = {
@@ -41,12 +42,39 @@ def random(self, neighborhood=4, freq=1):
         yield choice(moves) if move == 0 else (0, 0)
         move = (move+1) % freq
 
+def aggresive(self, game, neighbourhood=8):
+    moves = [(-1, 0), (1, 0), (0, 1), (0, -1)]  # sąsiedztwo von Neumanna
+    if neighbourhood == 8:  # sąsiedztwo Conwaya
+        moves += [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+    while True:
+        if numpy.abs(self.xpos - game.pc.xpos) < 3 and numpy.abs(self.ypos - game.pc.ypos) < 3:
+            dx = -numpy.sign(self.xpos - game.pc.xpos)
+            dy = -numpy.sign(self.ypos - game.pc.ypos)
+            yield (dx,dy)
+        else:
+            yield (0,0)
+
+def steady(self, game, neighbourhood=4):
+    moves = [(-1, 0), (1, 0), (0, 1), (0, -1)]  # sąsiedztwo von Neumanna
+    if neighbourhood == 8:  # sąsiedztwo Conwaya
+        moves += [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+    while True:
+        if numpy.abs(self.ypos - game.pc.ypos) == 1 and numpy.abs(self.xpos - game.pc.xpos) == 0:
+            dx = 0
+            dy = -numpy.sign(self.ypos - game.pc.ypos)
+        elif numpy.abs(self.xpos - game.pc.xpos) < 3 and numpy.abs(self.ypos - game.pc.ypos) < 3:
+            dx = -numpy.sign(self.xpos - game.pc.xpos)
+            dy = 0
+        else:
+            dx = 0
+            dy = 0
+        yield (dx,dy)
 
 patterns = {
     'still': still, 'cycle': cycle,
-    'random': random
+    'random': random, 'aggresive': aggresive,
+    'steady': steady
 }
-
 
 class Creature(Sprite):
     def __init__(self, path, tile_width, tile_height, game_state,
@@ -149,9 +177,9 @@ class Enemy(Creature):
                          xpos=xpos, ypos=ypos, group=group,
                          health=health, name=name)
         if type(move_pattern) == str:
-            self.move_pattern = patterns[move_pattern](self, *move_params)
+            self.move_pattern = patterns[move_pattern](self, self.game, *move_params)
         else:
-            self.move_pattern = move_pattern(self, *move_params)
+            self.move_pattern = move_pattern(self, self.game, *move_params)
         self.cycle = move_pattern == cycle
         self.game.enemies.append(self)
 
@@ -198,11 +226,18 @@ class Enemy(Creature):
             base_stats[stat] = int(base_stats[stat])
 
         xp, yp = get_clear_tile(game)
+        if path == 'enemies/guard.json':
+            return Enemy(tile_height=24, tile_width=24, game_state=game, xpos = 37, ypos = 24, **base_stats)
+        if path == 'enemies/guard1.json':
+            return Enemy(tile_height=24, tile_width=24, game_state=game, xpos = 22, ypos = 24, **base_stats)
+        if path == 'enemies/guard2.json':
+            return Enemy(tile_height=24, tile_width=24, game_state=game, xpos = 7, ypos = 24, **base_stats)
         return Enemy(tile_height=24, tile_width=24, game_state=game, xpos=xp, ypos=yp, **base_stats)
 
 
 def add_enemies(game):
     # w przyszłości będzie zależne od poziomu
+    """
     xp, yp = get_clear_tile(game)
     nest = Enemy('img/enemy.png', 24, 24, game, xpos=xp, ypos=yp)
 
@@ -210,6 +245,21 @@ def add_enemies(game):
     slime = Enemy('img/enemy.png', 24, 24, game, xpos=xp, ypos=yp,
                   move_pattern=cycle,
                   move_params=[(0, 1), (0, 0), (0, -1), (0, 0)])
+    """
 
-    xp, yp = get_clear_tile(game)
-    bat = Enemy.from_json('enemies/bat.json', game)
+    #bat = Enemy.from_json('enemies/bat.json', game)
+
+
+    bandit1 = Enemy.from_json('enemies/bandit.json', game)
+    bandit2 = Enemy.from_json('enemies/bandit.json', game)
+    bandit3 = Enemy.from_json('enemies/bandit.json', game)
+    bandit4 = Enemy.from_json('enemies/bandit.json', game)
+    bandit5 = Enemy.from_json('enemies/bandit.json', game)
+    bandit6 = Enemy.from_json('enemies/bandit.json', game)
+    bandit7 = Enemy.from_json('enemies/bandit.json', game)
+    bandit8 = Enemy.from_json('enemies/bandit.json', game)
+    bandit9 = Enemy.from_json('enemies/bandit.json', game)
+
+    guard = Enemy.from_json('enemies/guard.json', game)
+    guard1 = Enemy.from_json('enemies/guard1.json', game)
+    guard2 = Enemy.from_json('enemies/guard2.json', game)

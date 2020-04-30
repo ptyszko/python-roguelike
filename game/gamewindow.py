@@ -6,7 +6,7 @@ from random import randint
 
 
 class Game(pyglet.window.Window):
-    def __init__(self, game_state, *args, **kwargs):
+    def __init__(self, game_state, *args, **kwargs, ):
         super().__init__(*args, **kwargs)
         self.game_state = game_state
         game_state.game_window = self
@@ -71,9 +71,9 @@ class Game(pyglet.window.Window):
             '0:00.00', font_name=fonts.MONO, font_size=20,
             color=colors.SEMI_WHITE, batch=self.main_batch
         )
-        self.draw_stage()
+        self.draw_stage(0,False)
 
-    def draw_stage(self):
+    def draw_stage(self, start_staircase, start_direction_up):
         if self.game_state.move_timeout:
             pyglet.clock.unschedule(self.time_step)
             self.time_to_move = self.game_state.timeout_limit
@@ -90,7 +90,7 @@ class Game(pyglet.window.Window):
 
         height = self.game_state.height
         width = self.game_state.width
-        self.game_state.map = generate_level(width, height)
+        self.game_state.map = generate_level(width, height, start_staircase, start_direction_up)
         for ycoord, row in enumerate(self.game_state.map[1:-1], 1):
             for xcoord, cur_tile in enumerate(row[1:-1], 1):
                 try:
@@ -121,7 +121,10 @@ class Game(pyglet.window.Window):
             # print(f'moved {keys.DIRECTIONS_DICT[symbol]}')
             self.update()
         if self.game_state.next_stage:
-            self.draw_stage()
+            start_staircase = (self.pc.xpos - 5) // 15
+            start_direction_up = True
+            if self.pc.ypos > 15: start_direction_up = False
+            self.draw_stage(start_staircase, start_direction_up)
 
     def win_screen(self):  # PLACEHOLDER
         pyglet.clock.unschedule(self.time_step)

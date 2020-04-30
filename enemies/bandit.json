@@ -1,0 +1,6 @@
+{
+	"name":"bandit",
+	"health":1,
+	"move_pattern": "aggresive",
+	"path": "img/enemy.png"
+}
