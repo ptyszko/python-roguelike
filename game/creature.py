@@ -12,7 +12,7 @@ from json import loads
 
 
 def sign(x):
-    return x and x/abs(x)
+    return x and int(x/abs(x))
 
 
 '''
