@@ -77,10 +77,7 @@ class Game(pyglet.window.Window):
         if self.game_state.move_timeout:
             pyglet.clock.unschedule(self.time_step)
             self.time_to_move = self.game_state.timeout_limit
-        for enemy in self.game_state.enemies:
-            enemy.delete()
-        self.game_state.enemies = set()
-        self.game_state.next_stage = False
+        self.game_state.new_stage()
         self.clear()
 
         if self.game_state.stage > self.game_state.stages:
@@ -111,7 +108,7 @@ class Game(pyglet.window.Window):
         self.pc.update_pos()
         self.pc.update_status()
         creature.add_enemies(self.game_state)
-        self.game_state.creatures.draw()
+        self.game_state.sprites.draw()
         if self.game_state.move_timeout:
             pyglet.clock.schedule_interval(self.time_step, 1/30)
 
@@ -188,5 +185,5 @@ class Game(pyglet.window.Window):
     def redraw(self):
         self.clear()
         self.background.blit(0, 0)
-        self.game_state.creatures.draw()
+        self.game_state.sprites.draw()
         self.main_batch.draw()

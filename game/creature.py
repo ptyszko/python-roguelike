@@ -15,13 +15,20 @@ def sign(x):
     return x and int(x/abs(x))
 
 
+HP = 'health'
+DMG = 'damage'
+DEF = 'defence'
+EXP = 'exp'
+HPMAX = 'maxhealth'
+G = 'gold'
+
 '''
 RANDOMIZED_STATS = {
-    'health', 'damage', 'exp'
+    HP, DMG, EXP
 }
 
 LEVELED_STATS = {
-    'health', 'damage', 'gold'
+    HP, DMG, G
 }
 '''
 RANDOMIZED_STATS = LEVELED_STATS = set()
@@ -82,10 +89,8 @@ class Creature(Sprite):
     def __init__(self, path, tile_width, tile_height, game_state,
                  xpos=0, ypos=0, group=None, health=5, defence=0, name='none'):
         img = load(path)
-        self.damage = 1  # w przyszłości zależne od statystyk
-        self.defence = defence
+        self.stats = {DMG: 1, DMG: defence, HP: health, HPMAX: health}
         self.name = name
-        self.health = self.maxhealth = health
         self.game = game_state
         self.tile_width = tile_width
         self.tile_height = tile_height
@@ -96,7 +101,7 @@ class Creature(Sprite):
             self.ypos = ypos
         super().__init__(
             img, x=(xpos-1)*tile_width, y=(ypos-1)*tile_height,
-            batch=game_state.creatures, group=group,
+            batch=game_state.sprites, group=group,
             usage='dynamic', subpixel=False
         )
 
@@ -111,12 +116,12 @@ class Creature(Sprite):
         )
 
     def on_damage(self, damage, source):
-        self.health -= damage
+        self.stats[HP] -= damage
         self.game.xprint(source.name, 'attacks', self.name,
                          'for', damage, 'damage.')
 
     def attack(self, target):
-        target.on_damage(self.damage - target.defence, self)
+        target.on_damage(max(self.stats[DMG] - target.stats[DMG], 1), self)
 
 
 class Player(Creature):
@@ -126,7 +131,8 @@ class Player(Creature):
                          game_state, xpos=xpos, ypos=ypos,
                          group=group, name='Player')
         self.game.pc = self
-        self.exp = 0
+        self.stats[EXP] = 0
+        self.inv = {}
         self.status_indicator = Label(
             x=self.game.game_window.width,
             y=self.game.game_window.height-40,
@@ -152,18 +158,32 @@ class Player(Creature):
             if self.game.map[self.ypos][self.xpos] in tile.STAIRS:
                 self.game.stage += 1
                 self.game.next_stage = True
+                
+        found_items = (c for c in self.game.consumables 
+                       if c.xpos == self.xpos and c.ypos == self.ypos)
+        for item in found_items:
+            item.consume()
+        found_gear = (e for e in self.game.equippables 
+                     if e.xpos == self.xpos and e.ypos == self.ypos)
+        for gear in found_gear: 
+            gear.equip()
         self.update_status()
 
     def on_damage(self, damage, source):
         super().on_damage(damage, source)
         self.update_status()
-        if self.health <= 0:
+        if self.stats[HP] <= 0:
             self.game.game_window.lose()
 
     def update_status(self):
-        self.status_indicator.text = f'''HP: {self.health}/{self.maxhealth}
+        self.status_indicator.text = f'''HP: {self.stats[HP]}/{self.stats[HPMAX]}
 x: {self.xpos}
 y: {self.ypos}'''
+
+    def normalize(self):
+        self.stats[HPMAX] = max(1, self.stats[HPMAX])
+        self.stats[HP] = max(min(self.stats[HP], self.stats[HPMAX]), 1)
+        self.update_status()
 
 
 class Enemy(Creature):
@@ -209,7 +229,7 @@ class Enemy(Creature):
 
     def on_damage(self, damage, source):
         super().on_damage(damage, source)
-        if self.health <= 0:
+        if self.stats[HP] <= 0:
             self.game.enemies.remove(self)
             self.delete()
 
