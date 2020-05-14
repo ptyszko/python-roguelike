@@ -21,11 +21,11 @@ gdzie niewymienione - docelowo:
 
 # Krok 3
 * przedmioty - początki
-* statystyki postaci - punkty zdrowia, atak, obrona
+* statystyki postaci ✔
 * warunek wygranej ✔
 
 # Krok 4
-* Regulacja poziomu trudności
+* Regulacja poziomu trudności ✔
 * (może) Wydarzenia wyzwalane po określonej liczbie tur:
 	* wymuszenie przejścia na następny poziom
 	* opcjonalnie koniec gry
