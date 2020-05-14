@@ -6,8 +6,8 @@ from .colors import WHITE
 class Button(Label):
     def __init__(self, text='', bold=False, italic=False, color=WHITE,
                  x=0, y=0, align='center', batch=None, multiline=False,
-                 action=lambda: None, game_state=None, width=None):
-        super().__init__(text='', font_name=SANS, font_size=30,
+                 action=lambda: None, game_state=None, width=None, font_size=30):
+        super().__init__(text='', font_name=SANS, font_size=font_size,
                          bold=bold, italic=italic, color=color, x=x,
                          y=y, anchor_x='center', anchor_y='top',
                          align=align, batch=batch, multiline=multiline,

@@ -20,9 +20,9 @@ gdzie niewymienione - docelowo:
 	* ~~(może) pułapki~~ 
 
 # Krok 3
-* przedmioty
-* statystyki postaci - punkty zdrowia
-* warunek wygranej - podstawa jest
+* przedmioty - początki
+* statystyki postaci - punkty zdrowia, atak, obrona
+* warunek wygranej ✔
 
 # Krok 4
 * Regulacja poziomu trudności

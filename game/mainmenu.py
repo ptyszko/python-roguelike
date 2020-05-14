@@ -18,48 +18,52 @@ class MainMenu(pyglet.window.Window):
 
         # create title and buttons
         def_style = {'x': self.width//2, 'batch': self.main_screen}
+        title_style = {'font_name':fonts.SERIF, 'font_size': 40, 
+                       'y': self.height-30, 'anchor_x': 'center', 
+                       'anchor_y': 'center'}
 
-        pyglet.text.Label(
-            text='SOME ROGUELIKE', font_name=fonts.SERIF,
-            font_size=40, y=self.height-30,
-            anchor_x='center', anchor_y='center',
-            **def_style
-        )
+        pyglet.text.Label(text='SOME ROGUELIKE', **def_style, **title_style)
 
-        pyglet.text.Label(
-            text='SETTINGS', font_name=fonts.SERIF,
-            font_size=40, y=self.height-30,
-            anchor_x='center', anchor_y='center',
-            x=self.width//2, batch=self.settings_screen
-        )
+        pyglet.text.Label(text='SETTINGS', x=self.width//2, 
+                          batch=self.settings_screen, **title_style)
 
         def_style['game_state'] = game_state
-        self.start = Button(
+        start = Button(
             text='Start Game', y=240,
             action=self.new_game,
             **def_style
         )
-        self.menu = Button(
+        menu = Button(
             text='Settings', y=120,
             action=self.open_settings,
             **def_style
         )
-        self.exit = Button(
+        exit = Button(
             text='Quit', y=60,
             action=self.close,
             **def_style
         )
+        self.main_buttons = [start, menu, exit]
 
         def_style['batch'] = self.settings_screen
+        def_style['font_size']=20
 
-        self.done = Button(
+        done = Button(
             text='Done', y=300,
             action=self.main,
             **def_style
         )
-
-        self.win_w = Button(
-            text='Map width: {self.game.width}', y=240,
+        difficulty = Button(
+            text='Difficulty: {self.game.difficulty}', y=200,
+            action={
+                'enter': lambda: None,
+                'right': lambda: self.game_state.change_diff(1),
+                'left': lambda: self.game_state.change_diff(-1)
+            },
+            **def_style
+        )
+        win_w = Button(
+            text='Map width: {self.game.width}', y=160,
             action={
                 'enter': lambda: None,
                 'right': lambda: self.game_state.change_size('width', 1),
@@ -67,9 +71,8 @@ class MainMenu(pyglet.window.Window):
             },
             **def_style
         )
-
-        self.win_h = Button(
-            text='Map height: {self.game.height}', y=180,
+        win_h = Button(
+            text='Map height: {self.game.height}', y=120,
             action={
                 'enter': lambda: None,
                 'right': lambda: self.game_state.change_size('height', 1),
@@ -77,11 +80,10 @@ class MainMenu(pyglet.window.Window):
             },
             **def_style
         )
-
-        self.timeout = Button(
+        timeout = Button(
             text='Move timeout: {self.game.timeout_limit:.1f}s'
             + '\n(0 means no timeout)',
-            y=120, action={
+            y=80, action={
                 'enter': lambda: None,
                 'right': lambda: self.game_state.change_timeout(0.1),
                 'left': lambda: self.game_state.change_timeout(-0.1)
@@ -89,11 +91,13 @@ class MainMenu(pyglet.window.Window):
             multiline=True, width=self.width,
             **def_style
         )
+        self.settings_buttons = [done, difficulty, win_w,
+                                 win_h, timeout]
 
         self.bcg = pyglet.image.TileableTexture.create_for_image(
             self.background)
 
-        self.visible_buttons = []
+        self.visible_buttons = self.main_buttons
         self.main()
         self.set_visible()
 
@@ -140,16 +144,15 @@ class MainMenu(pyglet.window.Window):
     def open_settings(self):
         for b in self.visible_buttons:
             b.color = colors.WHITE
-        self.done.color = colors.GREEN
-        self.visible_buttons = [self.done, self.win_w,
-                                self.win_h, self.timeout]
+        self.visible_buttons = self.settings_buttons
         self.active_button = 0
+        self.visible_buttons[0].color = colors.GREEN
         self.active = self.settings_screen
 
     def main(self):
         for b in self.visible_buttons:
             b.color = colors.WHITE
-        self.start.color = colors.GREEN
-        self.visible_buttons = [self.start, self.menu, self.exit]
+        self.visible_buttons = self.main_buttons
         self.active_button = 0
+        self.visible_buttons[0].color = colors.GREEN
         self.active = self.main_screen

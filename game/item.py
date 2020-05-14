@@ -74,7 +74,7 @@ class Equippable(Item):
         self.game.pc.stats[self.stat] += self.effect
         self.game.pc.normalize()
         self.game.equippables.remove(self)
-        self.image(pyglet.image.Texture.create(1,1))
+        self.image = pyglet.image.Texture.create(1,1)
         
     def unequip(self):
         self.game.pc.inv.pop(self._name)

@@ -23,6 +23,9 @@ class GameState:
         self.width = 45  # w tile-ach, wielokrotność 3*sell_size
         self.height = 30  # wielokrotność cell_size
         self.status_bar = None
+        self.difficulty = 0
+        self.groups = [pyglet.graphics.OrderedGroup(0),
+                       pyglet.graphics.OrderedGroup(1)]
 
     def change_size(self, param, change):
         if param == 'width' and self.width > self.cell_size*3:
@@ -38,6 +41,9 @@ class GameState:
             self.timeout_limit = 0
         else:
             self.timeout_limit += change
+            
+    def change_diff(self, change):
+        self.difficulty = max(self.difficulty+change, 0)
 
     def xprint(self, *args, sep=' '):
         self.status_bar.text = sep.join(str(a) for a in args)

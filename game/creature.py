@@ -1,11 +1,12 @@
 from pyglet.sprite import Sprite
-from pyglet.image import load
+from pyglet.image import load, create, SolidColorImagePattern
 from pyglet.graphics import Batch
 from pyglet.text import Label
 
 from util import tile
 from util.levelgen import get_clear_tile
 from util.fonts import SANS
+from util.colors import RED
 from itertools import repeat, chain, cycle as _cycle
 from random import choice, normalvariate
 from json import loads
@@ -22,7 +23,7 @@ EXP = 'exp'
 HPMAX = 'maxhealth'
 G = 'gold'
 
-'''
+
 RANDOMIZED_STATS = {
     HP, DMG, EXP
 }
@@ -30,8 +31,8 @@ RANDOMIZED_STATS = {
 LEVELED_STATS = {
     HP, DMG, G
 }
-'''
-RANDOMIZED_STATS = LEVELED_STATS = set()
+
+# RANDOMIZED_STATS = LEVELED_STATS = set()
 LEVELING_FACTOR = 1/20
 VAR = 1/10
 
@@ -69,10 +70,10 @@ def steady(self, neighbourhood=4):
     game = self.game
     while True:
         dx = dy = 0
-        if (abs(self.ypos-game.pc.ypos) == 1 
-            and self.xpos-game.pc.xpos == 0):
+        if (abs(self.ypos-game.pc.ypos) == 1
+                and self.xpos-game.pc.xpos == 0):
             dy = game.pc.ypos - self.ypos
-        elif (abs(self.xpos - game.pc.xpos) < 3 
+        elif (abs(self.xpos - game.pc.xpos) < 3
               and abs(self.ypos - game.pc.ypos) < 3):
             dx = -sign(self.xpos - game.pc.xpos)
         yield (dx, dy)
@@ -87,9 +88,10 @@ patterns = {
 
 class Creature(Sprite):
     def __init__(self, path, tile_width, tile_height, game_state,
-                 xpos=0, ypos=0, group=None, health=5, defence=0, name='none'):
+                 xpos=0, ypos=0, health=5, defence=0, group=None,
+                 name='none', damage=1):
         img = load(path)
-        self.stats = {DMG: 1, DMG: defence, HP: health, HPMAX: health}
+        self.stats = {DMG: damage, DEF: defence, HP: health, HPMAX: health}
         self.name = name
         self.game = game_state
         self.tile_width = tile_width
@@ -99,6 +101,8 @@ class Creature(Sprite):
         else:
             self.xpos = xpos
             self.ypos = ypos
+        if group is None: 
+            group = self.game.groups[0]
         super().__init__(
             img, x=(xpos-1)*tile_width, y=(ypos-1)*tile_height,
             batch=game_state.sprites, group=group,
@@ -121,7 +125,7 @@ class Creature(Sprite):
                          'for', damage, 'damage.')
 
     def attack(self, target):
-        target.on_damage(max(self.stats[DMG] - target.stats[DMG], 1), self)
+        target.on_damage(max(self.stats[DMG] - target.stats[DEF], 1), self)
 
 
 class Player(Creature):
@@ -131,7 +135,7 @@ class Player(Creature):
                          game_state, xpos=xpos, ypos=ypos,
                          group=group, name='Player')
         self.game.pc = self
-        self.stats[EXP] = 0
+        self.stats[EXP] = self.stats[G] = 0
         self.inv = {}
         self.status_indicator = Label(
             x=self.game.game_window.width,
@@ -154,18 +158,18 @@ class Player(Creature):
             self.xpos = new_x
             self.ypos = new_y
             self.update_pos()
-            
+
             if self.game.map[self.ypos][self.xpos] in tile.STAIRS:
                 self.game.stage += 1
                 self.game.next_stage = True
-                
-        found_items = (c for c in self.game.consumables 
+
+        found_items = (c for c in self.game.consumables
                        if c.xpos == self.xpos and c.ypos == self.ypos)
         for item in found_items:
             item.consume()
-        found_gear = (e for e in self.game.equippables 
-                     if e.xpos == self.xpos and e.ypos == self.ypos)
-        for gear in found_gear: 
+        found_gear = (e for e in self.game.equippables
+                      if e.xpos == self.xpos and e.ypos == self.ypos)
+        for gear in found_gear:
             gear.equip()
         self.update_status()
 
@@ -178,7 +182,8 @@ class Player(Creature):
     def update_status(self):
         self.status_indicator.text = f'''HP: {self.stats[HP]}/{self.stats[HPMAX]}
 x: {self.xpos}
-y: {self.ypos}'''
+y: {self.ypos}
+gold: {self.stats[G]}'''
 
     def normalize(self):
         self.stats[HPMAX] = max(1, self.stats[HPMAX])
@@ -189,7 +194,8 @@ y: {self.ypos}'''
 class Enemy(Creature):
     def __init__(self, path, tile_width, tile_height, game_state,
                  xpos=0, ypos=0, group=None, health=5,
-                 move_pattern=still, move_params=(), name='enemy'):
+                 move_pattern=still, move_params=(), name='enemy',
+                 gold=0, exp=0):
         super().__init__(path, tile_width, tile_height, game_state,
                          xpos=xpos, ypos=ypos, group=group,
                          health=health, name=name)
@@ -200,6 +206,11 @@ class Enemy(Creature):
             self.move_pattern = move_pattern(self, *move_params)
         self.cycle = move_pattern == cycle
         self.game.enemies.add(self)
+        self.stats[G] = gold
+        self.stats[EXP] = exp
+        self.healthbar = Sprite(create(24, 4, SolidColorImagePattern(RED)),
+                                x=self.x, y=self.y, batch=self.batch,
+                                group=self.game.groups[1])
 
     def move(self):
         dx, dy = next(self.move_pattern)
@@ -231,22 +242,37 @@ class Enemy(Creature):
         super().on_damage(damage, source)
         if self.stats[HP] <= 0:
             self.game.enemies.remove(self)
+            self.game.pc.stats[G] += self.stats[G]
+            self.game.pc.stats[EXP] += self.stats[EXP]
+            self.healthbar.delete()
             self.delete()
+            return None
+        self.healthbar.image = create(
+            round(24*self.stats[HP]/self.stats[HPMAX]), 
+            4, SolidColorImagePattern(RED)
+        )
+        self.healthbar.draw()
+        
+    def update_pos(self):
+        super().update_pos()
+        self.healthbar.x = self.x
+        self.healthbar.y = self.y
 
     @staticmethod
     def from_json(path, game, xp=0, yp=0):
         with open(path, 'r') as json:
             base_stats = loads(''.join(json.readlines()))
-        for stat in LEVELED_STATS:
-            base_stats[stat] *= 1 + LEVELING_FACTOR*game.stage
-        for stat in RANDOMIZED_STATS:
-            base_stats[stat] *= normalvariate(1, VAR)
-        for stat in LEVELED_STATS | RANDOMIZED_STATS:
-            base_stats[stat] = int(base_stats[stat])
 
         if xp == yp == 0:
             xp, yp = get_clear_tile(game)
-        return Enemy(tile_height=24, tile_width=24, game_state=game, xpos=xp, ypos=yp, **base_stats)
+        ret = Enemy(tile_height=24, tile_width=24, game_state=game,
+                    xpos=xp, ypos=yp, **base_stats)
+        for stat in LEVELED_STATS:
+            ret.stats[stat] *= 1 + LEVELING_FACTOR*game.stage*(2*game.difficulty+1)
+        for stat in RANDOMIZED_STATS:
+            ret.stats[stat] *= normalvariate(1, VAR)
+        for stat in LEVELED_STATS | RANDOMIZED_STATS:
+            ret.stats[stat] = int(ret.stats[stat])
 
 
 def add_enemies(game):
