@@ -1,5 +1,5 @@
 import networkx as nx
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import random
 from .tile import *
 
@@ -144,19 +144,18 @@ def add_stone(map, cell_size, position, direction):
         for col in range(cell_size):
             (map[cell_size * position[0]]
              [cell_size * position[1] + col]) = STONE
+            rand = random.randint(0,5)
+            if rand == 1 and rand == 2:
+                (map[cell_size * position[0] + 1]
+                 [cell_size * position[1] + col]) = STONE
     elif direction == (1, 0):
         for col in range(cell_size):
             (map[cell_size * position[0] + cell_size - 1]
              [cell_size * position[1] + col]) = STONE
-    elif direction == (0, -1):
-        for row in range(cell_size):
-            (map[cell_size * position[0] + row]
-             [cell_size * position[1]]) = STONE
-    elif direction == (0, 1):
-        for row in range(cell_size):
-            (map[cell_size * position[0] + row]
-             [cell_size * position[1] + cell_size - 1]) = STONE
-
+            rand = random.randint(0,5)
+            if rand == 1 and rand == 2:
+                (map[cell_size * position[0] + cell_size - 2]
+                 [cell_size * position[1] + col]) = STONE
 
 def remove_wall(map, cell_size, position, direction):
     if direction == (-1, 0):

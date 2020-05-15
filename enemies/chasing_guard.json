@@ -1,0 +1,7 @@
+{
+	"name":"guard",
+	"health":4,
+	"move_pattern": "chasing",
+	"path": "img/guardian.png",
+	"gold": 5
+}

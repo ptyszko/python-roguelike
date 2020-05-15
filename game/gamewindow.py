@@ -87,7 +87,7 @@ class Game(pyglet.window.Window):
 
         height = self.game_state.height
         width = self.game_state.width
-        self.game_state.map = generate_level(
+        self.game_state.map, self.game_state.layout = generate_level(
             width, height, start_staircase, start_direction_up)
         for ycoord, row in enumerate(self.game_state.map[1:-1], 1):
             for xcoord, cur_tile in enumerate(row[1:-1], 1):

@@ -1,7 +1,7 @@
 {
 	"name": "bandit",
 	"health": 1,
-	"move_pattern": "aggresive",
+	"move_pattern": "coward",
 	"path": "img/enemy.png",
 	"gold": 2
 }

@@ -7,6 +7,7 @@ from time import sleep
 class GameState:
     def __init__(self):
         self.map = None
+        self.layout = None
         self.stage = 1
         self.game_window = None
         self.pc = None

@@ -1,0 +1,6 @@
+{
+	"type": "consumable",
+    "stat": G,
+    "effect": 1,
+    "path": "img/item.png"
+}

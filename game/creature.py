@@ -10,10 +10,12 @@ from util.colors import RED
 from itertools import repeat, chain, cycle as _cycle
 from random import choice, normalvariate
 from json import loads
-
+from . import item
+import random as randomlib
+import networkx as nx
 
 def sign(x):
-    return x and int(x/abs(x))
+    return x and int(x / abs(x))
 
 
 HP = 'health'
@@ -22,7 +24,6 @@ DEF = 'defence'
 EXP = 'exp'
 HPMAX = 'maxhealth'
 G = 'gold'
-
 
 RANDOMIZED_STATS = {
     HP, DMG, EXP
@@ -33,8 +34,8 @@ LEVELED_STATS = {
 }
 
 # RANDOMIZED_STATS = LEVELED_STATS = set()
-LEVELING_FACTOR = 1/20
-VAR = 1/10
+LEVELING_FACTOR = 1 / 20
+VAR = 1 / 10
 
 
 def still(self):
@@ -52,11 +53,31 @@ def random(self, neighborhood=4, freq=1):
     move = 0
     while True:
         yield choice(moves) if move == 0 else (0, 0)
-        move = (move+1) % freq
+        move = (move + 1) % freq
 
 
 def aggresive(self, neighbourhood=8):
     game = self.game
+    while True:
+        if (room(self) == room(game.pc)):
+            dist_x = abs(self.xpos - game.pc.xpos)
+            dist_y = abs(self.ypos - game.pc.ypos)
+            dx = sign(self.xpos - game.pc.xpos)
+            dy = sign(self.ypos - game.pc.ypos)
+            if dist_x < dist_y:
+                yield (0, -dy)
+            elif dist_x > dist_y:
+                yield (-dx, 0)
+            else:
+                rand = randomlib.randint(0, 1)
+                if rand == 0:
+                    yield (0, -dy)
+                else:
+                    yield (-dx , 0)
+        else:
+            yield (0, 0)
+
+"""
     while True:
         if abs(self.xpos - game.pc.xpos) < 3 and abs(self.ypos - game.pc.ypos) < 3:
             dx = -sign(self.xpos - game.pc.xpos)
@@ -64,14 +85,84 @@ def aggresive(self, neighbourhood=8):
             yield (dx, dy)
         else:
             yield (0, 0)
+"""
 
+
+def coward(self, neighbourhood=8):
+    game = self.game
+    while True:
+        if abs(self.xpos - game.pc.xpos) < 3 and abs(self.ypos - game.pc.ypos) < 3:
+            dx = sign(self.xpos - game.pc.xpos)
+            dy = sign(self.ypos - game.pc.ypos)
+            yield (dx, dy)
+        else:
+            yield (0, 0)
+
+
+def room(self):
+    game = self.game
+    row = (self.ypos) // 5 - 1
+    col = (self.xpos) // 5
+    return (row, col)
+
+def change_room(self, variant):
+    change_map = [[(-1,0),self.ypos,(0,1)],[(0,1),self.xpos,(1,0)],[(1,0),self.ypos,(0,1)],[(0,-1),self.xpos,(1,0)]]
+    if change_map[variant][1]%5 == 2:
+        return (change_map[variant][0])
+    elif change_map[variant][1]%5 < 2:
+        return change_map[variant][2]
+    else:
+        return (-change_map[variant][2][0],-change_map[variant][2][1])
+
+def chasing_step(self, neighbourhood=8):
+    game = self.game
+    if (room(self) == room(game.pc)):
+        dist_x = abs(self.xpos - game.pc.xpos)
+        dist_y = abs(self.ypos - game.pc.ypos)
+        dx = sign(self.xpos - game.pc.xpos)
+        dy = sign(self.ypos - game.pc.ypos)
+        if dist_x < dist_y:
+            return (0, -dy)
+        elif dist_x > dist_y:
+            return (-dx, 0)
+        else:
+            rand = randomlib.randint(0, 1)
+            if rand == 0:
+                return (0, -dy)
+            else:
+                return (-dx , 0)
+    else:
+        layout = self.game.layout
+        path = nx.shortest_path(layout,(room(self)),(room(game.pc)))
+        direction = tuple(map(lambda i, j: i - j, path[0], path[1]))
+        print(direction)
+        variant = 0
+        if direction == (0, 1):
+            variant = 0
+        elif direction == (-1, 0):
+            variant = 1
+        elif direction == (0, -1):
+            variant = 2
+        else:
+            variant = 3
+        return change_room(self, variant)
+
+def chasing(self):
+    counter = 0
+    while True:
+        if counter == 2:
+            yield (0, 0)
+        else:
+            yield (chasing_step(self))
+        counter += 1
+        counter = counter % 5
 
 def steady(self, neighbourhood=4):
     game = self.game
     while True:
         dx = dy = 0
-        if (abs(self.ypos-game.pc.ypos) == 1
-                and self.xpos-game.pc.xpos == 0):
+        if (abs(self.ypos - game.pc.ypos) == 1
+                and self.xpos - game.pc.xpos == 0):
             dy = game.pc.ypos - self.ypos
         elif (abs(self.xpos - game.pc.xpos) < 3
               and abs(self.ypos - game.pc.ypos) < 3):
@@ -82,7 +173,8 @@ def steady(self, neighbourhood=4):
 patterns = {
     'still': still, 'cycle': cycle,
     'random': random, 'aggresive': aggresive,
-    'steady': steady
+    'steady': steady, 'coward': coward,
+    'chasing': chasing
 }
 
 
@@ -101,10 +193,10 @@ class Creature(Sprite):
         else:
             self.xpos = xpos
             self.ypos = ypos
-        if group is None: 
+        if group is None:
             group = self.game.groups[0]
         super().__init__(
-            img, x=(xpos-1)*tile_width, y=(ypos-1)*tile_height,
+            img, x=(xpos - 1) * tile_width, y=(ypos - 1) * tile_height,
             batch=game_state.sprites, group=group,
             usage='dynamic', subpixel=False
         )
@@ -115,8 +207,8 @@ class Creature(Sprite):
 
     def update_pos(self):
         self.update(
-            x=(self.xpos-1) * self.tile_width,
-            y=(self.ypos-1) * self.tile_height
+            x=(self.xpos - 1) * self.tile_width,
+            y=(self.ypos - 1) * self.tile_height
         )
 
     def on_damage(self, damage, source):
@@ -139,15 +231,15 @@ class Player(Creature):
         self.inv = {}
         self.status_indicator = Label(
             x=self.game.game_window.width,
-            y=self.game.game_window.height-40,
+            y=self.game.game_window.height - 40,
             width=100, multiline=True, font_name=SANS,
             font_size=20, anchor_x='right', anchor_y='top',
             batch=self.game.game_window.main_batch
         )
 
     def move(self, dx, dy):
-        new_x = self.xpos+dx
-        new_y = self.ypos+dy
+        new_x = self.xpos + dx
+        new_y = self.ypos + dy
         enemy = next((m for m in self.game.enemies
                       if m.xpos == new_x
                       and m.ypos == new_y), None)
@@ -214,23 +306,23 @@ class Enemy(Creature):
 
     def move(self):
         dx, dy = next(self.move_pattern)
-        new_x = self.xpos+dx
-        new_y = self.ypos+dy
+        new_x = self.xpos + dx
+        new_y = self.ypos + dy
         if (
-            self.game.pc.xpos == new_x
-            and self.game.pc.ypos == new_y
+                self.game.pc.xpos == new_x
+                and self.game.pc.ypos == new_y
         ):
             self.attack(self.game.pc)
             if self.cycle:
                 self.move_pattern = chain([(dx, dy)], self.move_pattern)
         elif (
-            0 < new_x < self.game.width-1
-            and 0 < new_y < self.game.height-1
-            and self.game.map[new_y][new_x]
-            in tile.TRAVERSABLE
-            and not any(new_x == e.xpos
-                        and new_y == e.ypos
-                        for e in self.game.enemies - {self})
+                0 < new_x < self.game.width - 1
+                and 0 < new_y < self.game.height - 1
+                and self.game.map[new_y][new_x]
+                in tile.TRAVERSABLE
+                and not any(new_x == e.xpos
+                            and new_y == e.ypos
+                            for e in self.game.enemies - {self})
         ):
             self.xpos += dx
             self.ypos += dy
@@ -245,14 +337,15 @@ class Enemy(Creature):
             self.game.pc.stats[G] += self.stats[G]
             self.game.pc.stats[EXP] += self.stats[EXP]
             self.healthbar.delete()
+            # item.Item.from_JSON('items/nugget.json', xpos=self.xpos, ypos=self.ypos)
             self.delete()
             return None
         self.healthbar.image = create(
-            round(24*self.stats[HP]/self.stats[HPMAX]), 
+            round(24 * self.stats[HP] / self.stats[HPMAX]),
             4, SolidColorImagePattern(RED)
         )
         self.healthbar.draw()
-        
+
     def update_pos(self):
         super().update_pos()
         self.healthbar.x = self.x
@@ -268,7 +361,7 @@ class Enemy(Creature):
         ret = Enemy(tile_height=24, tile_width=24, game_state=game,
                     xpos=xp, ypos=yp, **base_stats)
         for stat in LEVELED_STATS:
-            ret.stats[stat] *= 1 + LEVELING_FACTOR*game.stage*(2*game.difficulty+1)
+            ret.stats[stat] *= 1 + LEVELING_FACTOR * game.stage * (2 * game.difficulty + 1)
         for stat in RANDOMIZED_STATS:
             ret.stats[stat] *= normalvariate(1, VAR)
         for stat in LEVELED_STATS | RANDOMIZED_STATS:
@@ -281,4 +374,4 @@ def add_enemies(game):
         Enemy.from_json('enemies/bandit.json', game)
 
     for x in range(7, game.width, 15):
-        Enemy.from_json('enemies/guard.json', game, xp=x, yp=game.height-6)
+        Enemy.from_json('enemies/guard.json', game, xp=x, yp=game.height - 6)
