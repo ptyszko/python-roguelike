@@ -21,10 +21,10 @@ def add_game_elems(map_tiles, width, height, start_staircase, start_direction_up
     cell_size = 5
     corridors = width//15
     cells = height//5 - 2
-    map_tiles, layout = floor(cell_size, corridors,
+    map_tiles, layout, end_staircase = floor(cell_size, corridors,
                               cells, start_staircase, start_direction_up)
     # print(f'height: {len(map_tiles)}, width: {len(map_tiles[0])}')
-    return map_tiles, layout
+    return map_tiles, layout, end_staircase
 # koniec części do zamienienia
 
 

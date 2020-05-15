@@ -208,7 +208,7 @@ def floor(cell_size, corridors, cells, start_staircase, start_direction_up):
     else:
         remove_wall(floor, cell_size,
                     (cells+1, end_staircase * 3 + 1), (-1, 0))
-    return floor, layout
+    return floor, layout, end_staircase
 
 
 '''

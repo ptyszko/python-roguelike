@@ -2,6 +2,7 @@ from pyglet.sprite import Sprite
 from pyglet.image import load, create, SolidColorImagePattern
 from pyglet.graphics import Batch
 from pyglet.text import Label
+import pyglet
 
 from util import tile
 from util.levelgen import get_clear_tile
@@ -13,6 +14,7 @@ from json import loads
 from . import item
 import random as randomlib
 import networkx as nx
+
 
 def sign(x):
     return x and int(x / abs(x))
@@ -26,7 +28,7 @@ HPMAX = 'maxhealth'
 G = 'gold'
 
 RANDOMIZED_STATS = {
-    HP, DMG, EXP
+    DMG, EXP#, HP
 }
 
 LEVELED_STATS = {
@@ -73,9 +75,10 @@ def aggresive(self, neighbourhood=8):
                 if rand == 0:
                     yield (0, -dy)
                 else:
-                    yield (-dx , 0)
+                    yield (-dx, 0)
         else:
             yield (0, 0)
+
 
 """
     while True:
@@ -105,7 +108,7 @@ def coward(self, neighbourhood=8):
                 if rand == 0:
                     yield (0, dy)
                 else:
-                    yield (dx , 0)
+                    yield (dx, 0)
         else:
             yield (0, 0)
 
@@ -116,17 +119,22 @@ def room(self):
     col = (self.xpos) // 5
     return (row, col)
 
+
 def change_room(self, variant):
-    change_map = [[(-1,0),self.ypos,(0,1)],[(0,1),self.xpos,(1,0)],[(1,0),self.ypos,(0,1)],[(0,-1),self.xpos,(1,0)]]
-    if change_map[variant][1]%5 == 2:
+    change_map = [[(-1, 0), self.ypos, (0, 1)], [(0, 1), self.xpos, (1, 0)], [(1, 0), self.ypos, (0, 1)],
+                  [(0, -1), self.xpos, (1, 0)]]
+    if change_map[variant][1] % 5 == 2:
         return (change_map[variant][0])
-    elif change_map[variant][1]%5 < 2:
+    elif change_map[variant][1] % 5 < 2:
         return change_map[variant][2]
     else:
-        return (-change_map[variant][2][0],-change_map[variant][2][1])
+        return (-change_map[variant][2][0], -change_map[variant][2][1])
+
 
 def chasing_step(self, neighbourhood=8):
     game = self.game
+    if (room(game.pc)[0] >= 4):
+        return (0, 0)
     if (room(self) == room(game.pc)):
         dist_x = abs(self.xpos - game.pc.xpos)
         dist_y = abs(self.ypos - game.pc.ypos)
@@ -141,10 +149,10 @@ def chasing_step(self, neighbourhood=8):
             if rand == 0:
                 return (0, -dy)
             else:
-                return (-dx , 0)
+                return (-dx, 0)
     else:
         layout = self.game.layout
-        path = nx.shortest_path(layout,(room(self)),(room(game.pc)))
+        path = nx.shortest_path(layout, (room(self)), (room(game.pc)))
         direction = tuple(map(lambda i, j: i - j, path[0], path[1]))
         variant = 0
         if direction == (0, 1):
@@ -157,40 +165,87 @@ def chasing_step(self, neighbourhood=8):
             variant = 3
         return change_room(self, variant)
 
+
 def chasing(self):
     counter = 0
     while True:
-        if counter == 2:
-            yield (0, 0)
-        else:
+        if counter == 2 or counter == 3 or counter == 4:
             yield (chasing_step(self))
+        else:
+            yield (0, 0)
         counter += 1
         counter = counter % 5
 
-def steady(self, neighbourhood=4):
+
+def glasses(self, neighbourhood=4):
     game = self.game
     while True:
         dx = dy = 0
         if (abs(self.ypos - game.pc.ypos) == 1
                 and self.xpos - game.pc.xpos == 0):
             dy = game.pc.ypos - self.ypos
+        elif (abs(self.ypos - game.pc.ypos) == 0
+                and self.xpos - game.pc.xpos == 1):
+            dx = game.pc.xpos - self.xpos
         elif (abs(self.xpos - game.pc.xpos) < 3
               and abs(self.ypos - game.pc.ypos) < 3):
             dx = -sign(self.xpos - game.pc.xpos)
         yield (dx, dy)
 
+def angry(self):
+    game = self.game
+    player_seen = False
+    while True:
+        if player_seen:
+            yield chasing_step(self)
+        else:
+            if (room(self) == room(game.pc)):
+                player_seen = True
+                self.image = pyglet.image.load('img/guardian_angry.png')
+            yield (0, 0)
+
+def unlucky(self):
+    game = self.game
+    while True:
+        yield (0, 0)
+
+
+def wary(self):
+    game = self.game
+    while True:
+        if (abs(self.ypos - game.pc.ypos)) == 1 and (abs(self.xpos - game.pc.xpos)) == 0:
+            yield (0, game.pc.ypos - self.ypos)
+        elif (abs(self.ypos - game.pc.ypos)) == 0 and (abs(self.xpos - game.pc.xpos)) == 1:
+            yield (game.pc.xpos - self.xpos, 0)
+        else:
+            yield (0, 0)
+
+
+def goldenrule(self):
+    game = self.game
+    balance = 0
+    maxhp = self.stats[HP]
+    while True:
+        if self.stats[HP] + balance < maxhp:
+            yield (chasing_step(self))
+            balance += 1
+        else:
+            yield (0, 0)
+
 
 patterns = {
     'still': still, 'cycle': cycle,
     'random': random, 'aggresive': aggresive,
-    'steady': steady, 'coward': coward,
-    'chasing': chasing
+    'glasses': glasses, 'coward': coward,
+    'chasing': chasing, 'wary': wary,
+    'goldenrule': goldenrule, 'angry': angry,
+    'unlucky': unlucky
 }
 
 
 class Creature(Sprite):
     def __init__(self, path, tile_width, tile_height, game_state,
-                 xpos=0, ypos=0, health=5, defence=0, group=None,
+                 xpos=0, ypos=0, health=3, defence=0, group=None,
                  name='none', damage=1):
         img = load(path)
         self.stats = {DMG: damage, DEF: defence, HP: health, HPMAX: health}
@@ -225,6 +280,10 @@ class Creature(Sprite):
         self.stats[HP] -= damage
         self.game.xprint(source.name, 'attacks', self.name,
                          'for', damage, 'damage.')
+        if self.name == 'Player':
+            pyglet.resource.media('sound/bandit_hit.wav').play()
+        if self.game.pc.stats[HP] < 3:
+            self.game.pc.image = load('img/player_hurt.png')
 
     def attack(self, target):
         target.on_damage(max(self.stats[DMG] - target.stats[DEF], 1), self)
@@ -295,7 +354,7 @@ gold: {self.stats[G]}'''
 
 class Enemy(Creature):
     def __init__(self, path, tile_width, tile_height, game_state,
-                 xpos=0, ypos=0, group=None, health=5,
+                 xpos=0, ypos=0, group=None, health=3,
                  move_pattern=still, move_params=(), name='enemy',
                  gold=0, exp=0):
         super().__init__(path, tile_width, tile_height, game_state,
@@ -316,6 +375,12 @@ class Enemy(Creature):
 
     def move(self):
         dx, dy = next(self.move_pattern)
+        """
+        # niedziałający kod leczenia się przeciwników
+        if dx == 0 and dy == 0:
+            if self.stats[HP] < self.stats[HPMAX]:
+                self.stats[HP] += 1
+        """
         new_x = self.xpos + dx
         new_y = self.ypos + dy
         if (
@@ -379,20 +444,23 @@ class Enemy(Creature):
 
 
 def add_enemies(game):
-    # w przyszłości będzie zależne od poziomu
+    primary_bandit_type = ['enemies/bandit_coward.json', 'enemies/bandit_goldenrule.json',
+                           'enemies/bandit_wary.json', 'enemies/bandit_aggresive.json']
+    secondary_bandit_type = ['enemies/bandit_goldenrule.json', 'enemies/bandit_wary.json',
+                             'enemies/bandit_aggresive.json', 'enemies/bandit_aggresive.json']
+    guard_type = ['enemies/guardian_glasses.json', 'enemies/guardian_angry.json', 'enemies/guardian_unlucky.json',
+                  'enemies/guardian_standard.json']
+
     for cor in range(3):
         for side in range(2):
             for cell in range(4):
-                rand = randomlib.randint(0,3)
+                rand = randomlib.randint(0, 3)
                 if rand == 0:
-                    Enemy.from_json('enemies/bandit.json', game, xp = cor * 15 + side * 10 + 2, yp = (cell+1) * 5 + 2)
+                    Enemy.from_json(primary_bandit_type[game.stage - 1], game, xp=cor * 15 + side * 10 + 2,
+                                    yp=(cell + 1) * 5 + 2)
                 else:
-                    Enemy.from_json('enemies/coward.json', game, xp = cor * 15 + side * 10 + 2, yp = (cell+1) * 5 + 2)
-
-    for x in range(7, game.width, 15):
-        Enemy.from_json('enemies/guard.json', game, xp=x, yp=game.height - 6)
-
-    Enemy.from_json('enemies/chasing_guard.json', game, xp = game.pc.xpos, yp = game.pc.ypos - 2)
-
-
-
+                    Enemy.from_json(secondary_bandit_type[game.stage - 1], game, xp=cor * 15 + side * 10 + 2,
+                                    yp=(cell + 1) * 5 + 2)
+    Enemy.from_json(guard_type[game.stage - 1], game, xp=7 + 15 * game.end_staircase, yp=game.height - 6)
+    if game.stage == 3:
+        Enemy.from_json('enemies/guardian_chasing.json', game, xp=game.pc.xpos, yp=game.pc.ypos - 1)

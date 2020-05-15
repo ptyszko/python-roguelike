@@ -1,0 +1,7 @@
+{
+  "name": "guardian",
+  "health": 1,
+  "move_pattern": "angry",
+  "path": "img/guardian_default.png",
+  "gold": 5
+}

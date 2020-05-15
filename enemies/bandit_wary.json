@@ -1,0 +1,7 @@
+{
+	"name": "bandit",
+	"health": 3,
+	"move_pattern": "wary",
+	"path": "img/bandit_wary.png",
+	"gold": 2
+}

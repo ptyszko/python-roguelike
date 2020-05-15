@@ -2,5 +2,5 @@
 	"name":"bat",
 	"health":3,
 	"move_pattern": "random",
-	"path": "img/enemy.png"
+	"path": "img/bandit_digger.png"
 }

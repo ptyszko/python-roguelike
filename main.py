@@ -8,18 +8,19 @@ class GameState:
     def __init__(self):
         self.map = None
         self.layout = None
+        self.end_staircase = None
         self.stage = 1
         self.game_window = None
         self.pc = None
         self.next_stage = False
         self.move_timeout = True
-        self.timeout_limit = 3  # sekundy
+        self.timeout_limit = 1  # sekundy
         self.enemies = set()
         self.consumables = set()
         self.equippables = set()
         self.sprites = pyglet.graphics.Batch()
         self.items = pyglet.graphics.Batch()
-        self.stages = 10
+        self.stages = 3
         self.cell_size = 5
         self.width = 45  # w tile-ach, wielokrotność 3*sell_size
         self.height = 30  # wielokrotność cell_size
