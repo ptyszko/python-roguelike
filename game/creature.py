@@ -91,10 +91,21 @@ def aggresive(self, neighbourhood=8):
 def coward(self, neighbourhood=8):
     game = self.game
     while True:
-        if abs(self.xpos - game.pc.xpos) < 3 and abs(self.ypos - game.pc.ypos) < 3:
+        if (room(self) == room(game.pc)):
+            dist_x = abs(self.xpos - game.pc.xpos)
+            dist_y = abs(self.ypos - game.pc.ypos)
             dx = sign(self.xpos - game.pc.xpos)
             dy = sign(self.ypos - game.pc.ypos)
-            yield (dx, dy)
+            if dist_x < dist_y:
+                yield (0, dy)
+            elif dist_x > dist_y:
+                yield (dx, 0)
+            else:
+                rand = randomlib.randint(0, 1)
+                if rand == 0:
+                    yield (0, dy)
+                else:
+                    yield (dx , 0)
         else:
             yield (0, 0)
 
@@ -370,8 +381,19 @@ class Enemy(Creature):
 
 def add_enemies(game):
     # w przyszłości będzie zależne od poziomu
-    for i in range(10):
-        Enemy.from_json('enemies/bandit.json', game)
+    for cor in range(3):
+        for side in range(2):
+            for cell in range(4):
+                rand = randomlib.randint(0,3)
+                if rand == 0:
+                    Enemy.from_json('enemies/bandit.json', game, xp = cor * 15 + side * 10 + 2, yp = (cell+1) * 5 + 2)
+                else:
+                    Enemy.from_json('enemies/coward.json', game, xp = cor * 15 + side * 10 + 2, yp = (cell+1) * 5 + 2)
 
     for x in range(7, game.width, 15):
         Enemy.from_json('enemies/guard.json', game, xp=x, yp=game.height - 6)
+
+    Enemy.from_json('enemies/chasing_guard.json', game, xp = game.pc.xpos, yp = game.pc.ypos - 2)
+
+
+
