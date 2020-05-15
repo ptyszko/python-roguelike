@@ -146,7 +146,6 @@ def chasing_step(self, neighbourhood=8):
         layout = self.game.layout
         path = nx.shortest_path(layout,(room(self)),(room(game.pc)))
         direction = tuple(map(lambda i, j: i - j, path[0], path[1]))
-        print(direction)
         variant = 0
         if direction == (0, 1):
             variant = 0
