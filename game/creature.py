@@ -204,10 +204,11 @@ def angry(self):
                 self.image = pyglet.image.load('img/guardian_angry.png')
             yield (0, 0)
 
-def unlucky(self):
+"""def unlucky(self):
     game = self.game
     while True:
-        yield (0, 0)
+        yield (0, 0)"""
+unlucky = still
 
 
 def wary(self):
@@ -246,13 +247,14 @@ patterns = {
 class Creature(Sprite):
     def __init__(self, path, tile_width, tile_height, game_state,
                  xpos=0, ypos=0, health=3, defence=0, group=None,
-                 name='none', damage=1):
+                 name='none', damage=1, hitsound = 'sound/player_hit.wav'):
         img = load(path)
         self.stats = {DMG: damage, DEF: defence, HP: health, HPMAX: health}
         self.name = name
         self.game = game_state
         self.tile_width = tile_width
         self.tile_height = tile_height
+        self.hit = pyglet.media.StaticSource(pyglet.media.load(hitsound))
         if xpos == ypos == 0:
             self.xpos, self.ypos = get_clear_tile(game_state)
         else:
@@ -281,7 +283,7 @@ class Creature(Sprite):
         self.game.xprint(source.name, 'attacks', self.name,
                          'for', damage, 'damage.')
         if self.name == 'Player':
-            pyglet.resource.media('sound/bandit_hit.wav').play()
+            source.hit.play()
         if self.game.pc.stats[HP] < 3:
             self.game.pc.image = load('img/player_hurt.png')
 
@@ -356,10 +358,10 @@ class Enemy(Creature):
     def __init__(self, path, tile_width, tile_height, game_state,
                  xpos=0, ypos=0, group=None, health=3,
                  move_pattern=still, move_params=(), name='enemy',
-                 gold=0, exp=0):
+                 gold=0, exp=0, hitsound='sound/bandit_hit.wav'):
         super().__init__(path, tile_width, tile_height, game_state,
                          xpos=xpos, ypos=ypos, group=group,
-                         health=health, name=name)
+                         health=health, name=name, hitsound=hitsound)
         if type(move_pattern) == str:
             self.move_pattern = patterns[move_pattern](
                 self, *move_params)

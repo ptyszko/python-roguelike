@@ -5,7 +5,7 @@ gdzie niewymienione - docelowo:
 * PT od strony graficznej (okna, sprite-y, wejście od gracza itp.)
 
 # Krok 1
-* (AM) generacja mapy - 90%
+* (AM) generacja mapy ✔
 * postać gracza:
 	* poruszanie ✔
 	* opcjonalne ograniczenie czasu na wykonanie ruchu ✔ - ~~na razie ustawienie zaharkodowane~~ ustawienia zrobione
@@ -14,7 +14,7 @@ gdzie niewymienione - docelowo:
 	* menu główne ✔
 
 # Krok 2
-* przeciwnicy - schemat dodawania (schematy ruchu i JSON) i interakacja z graczem
+* przeciwnicy ✔ - schemat dodawania (schematy ruchu i JSON) i interakacja z graczem 
 * interakcje ze światem:
 	* schody do następnego poziomu ✔
 	* ~~(może) pułapki~~ 
@@ -32,5 +32,5 @@ gdzie niewymienione - docelowo:
 
 # Krok 5
 * Rozszerzanie istniejących aspektów
-* Punktacja
+* Punktacja ✔ - zegar speedrun'owy, złoto
 * (może) poziomy postaci
