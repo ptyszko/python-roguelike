@@ -1,7 +1,7 @@
 {
-	"name":"guardian",
+	"name":"guard",
 	"health":10,
 	"move_pattern": "glasses",
-	"path": "img/guardian_glasses.png",
+	"path": "img/guard_glasses.png",
 	"gold": 5
 }

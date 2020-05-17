@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 import pyglet
+from pyglet.image import load as load_image
+from pyglet.media import load as load_media, StaticSource
 from game.mainmenu import MainMenu
 from time import sleep
 
@@ -28,6 +30,45 @@ class GameState:
         self.difficulty = 0
         self.groups = [pyglet.graphics.OrderedGroup(0),
                        pyglet.graphics.OrderedGroup(1)]
+        
+        self.tile_textures = {
+            'bars': load_image('img/bars.png').get_image_data(),
+            'dirt_floor': load_image('img/dirt-floor.png').get_image_data(),
+            'dirt_wall': load_image('img/dirt-wall.png').get_image_data(),
+            'rubble': load_image('img/rubble.png').get_image_data(),
+            'stairs': load_image('img/stairs.png').get_image_data(),
+        }
+        
+        self.sprite_textures = {
+            'bandit_aggr': load_image('img/bandit_aggresive.png'),
+            'bandit_coward': load_image('img/bandit_coward.png'),
+            'bandit_def': load_image('img/bandit_default.png'),
+            'bandit_dig': load_image('img/bandit_digger.png'),
+            'bandit_disg': load_image('img/bandit_disguised.png'),
+            'bandit_wander': load_image('img/bandit_wandering.png'),
+            'bandit_wary': load_image('img/bandit_wary.png'),
+            
+            'guard': load_image('img/guard.png'),
+            'guard_angry': load_image('img/guard_angry.png'),
+            'guard_chase': load_image('img/guard_chasing.png'),
+            'guard_def': load_image('img/guard_default.png'),
+            'guard_glass': load_image('img/guard_glasses.png'),
+            'guard_unlk': load_image('img/guard_unlucky.png'),
+            'guard': load_image('img/guard.png'),
+            
+            'player': load_image('img/player.png'),
+            'player_h': load_image('img/player_hurt.png'),
+            'player_d': load_image('img/player_disguised.png'),
+            'player_dh': load_image('img/player_disguised_hurt.png'),
+            
+            'item': load_image('img/item.png'),
+        }
+        
+        self.sounds = {
+            'player_hit': StaticSource(load_media('sound/player_hit.wav')),
+            'bandit_hit': StaticSource(load_media('sound/bandit_hit.wav')),
+            'guard_hit': StaticSource(load_media('sound/guard_hit.wav')),
+        }
 
     def change_size(self, param, change):
         if param == 'width' and self.width > self.cell_size*3:

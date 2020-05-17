@@ -1,7 +1,7 @@
 {
-	"name":"guardian",
+	"name":"guard",
 	"health":10,
 	"move_pattern": "unlucky",
-	"path": "img/guardian_unlucky.png",
+	"path": "img/guard_unlucky.png",
 	"gold": 5
 }
