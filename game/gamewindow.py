@@ -12,18 +12,18 @@ class Game(pyglet.window.Window):
         game_state.game_window = self
 
         # ładowanie tile-ów (tymczasowe)
-        self.floor = pyglet.image.load('img/dirt-floor.png').get_image_data()
-        self.wall = pyglet.image.load('img/dirt-wall.png').get_image_data()
-        self.stairs = pyglet.image.load('img/stairs.png').get_image_data()
-        self.bars = pyglet.image.load('img/bars.png').get_image_data()
-        self.rubble = pyglet.image.load('img/rubble.png').get_image_data()
+        self.floor = game_state.tile_textures['floor']
+        self.wall = game_state.tile_textures['wall']
+        self.stairs = game_state.tile_textures['stairs']
+        self.bars = game_state.tile_textures['bars']
+        self.rubble = game_state.tile_textures['rubble']
 
         # do wyciemnienia przy fow
-        self.dark_floor = pyglet.image.load('img/dirt-floor.png').get_image_data()
+        """self.dark_floor = pyglet.image.load('img/dirt-floor.png').get_image_data()
         self.dark_wall = pyglet.image.load('img/dirt-wall.png').get_image_data()
         self.dark_stairs = pyglet.image.load('img/stairs.png').get_image_data()
         self.dark_bars = pyglet.image.load('img/bars.png').get_image_data()
-        self.dark_rubble = pyglet.image.load('img/rubble.png').get_image_data()
+        self.dark_rubble = pyglet.image.load('img/rubble.png').get_image_data()"""
 
         self.tile_width = self.floor.width
         self.tile_height = self.floor.height

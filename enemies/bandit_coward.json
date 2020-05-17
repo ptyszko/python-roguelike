@@ -2,6 +2,6 @@
 	"name": "bandit",
 	"health": 3,
 	"move_pattern": "coward",
-	"path": "img/bandit_coward.png",
+	"path": "bandit_coward",
 	"gold": 2
 }

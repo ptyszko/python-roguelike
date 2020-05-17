@@ -1,6 +1,6 @@
 {
 	"type": "consumable",
-    "stat": G,
+    "stat": "gold",
     "effect": 1,
-    "path": "img/item.png"
+    "path": "item"
 }

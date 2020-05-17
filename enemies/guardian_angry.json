@@ -2,6 +2,6 @@
   "name": "guard",
   "health": 1,
   "move_pattern": "angry",
-  "path": "img/guard_default.png",
+  "path": "guard_def",
   "gold": 5
 }

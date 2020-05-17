@@ -2,6 +2,6 @@
 	"name": "bandit",
 	"health": 3,
 	"move_pattern": "goldenrule",
-	"path": "img/bandit_default.png",
+	"path": "bandit_def",
 	"gold": 2
 }

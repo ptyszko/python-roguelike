@@ -1,5 +1,9 @@
+import networkx as nx
+from itertools import repeat, chain, cycle as _cycle
+from random import choice, normalvariate, randint
+from json import loads
 from pyglet.sprite import Sprite
-from pyglet.image import load, create, SolidColorImagePattern
+from pyglet.image import create, SolidColorImagePattern
 from pyglet.graphics import Batch
 from pyglet.text import Label
 import pyglet
@@ -8,12 +12,7 @@ from util import tile
 from util.levelgen import get_clear_tile
 from util.fonts import SANS
 from util.colors import RED
-from itertools import repeat, chain, cycle as _cycle
-from random import choice, normalvariate
-from json import loads
 from . import item
-import random as randomlib
-import networkx as nx
 
 
 def sign(x):
@@ -28,7 +27,7 @@ HPMAX = 'maxhealth'
 G = 'gold'
 
 RANDOMIZED_STATS = {
-    DMG, EXP#, HP
+    DMG, EXP  # , HP
 }
 
 LEVELED_STATS = {
@@ -71,7 +70,7 @@ def aggresive(self, neighbourhood=8):
             elif dist_x > dist_y:
                 yield (-dx, 0)
             else:
-                rand = randomlib.randint(0, 1)
+                rand = randint(0, 1)
                 if rand == 0:
                     yield (0, -dy)
                 else:
@@ -104,7 +103,7 @@ def coward(self, neighbourhood=8):
             elif dist_x > dist_y:
                 yield (dx, 0)
             else:
-                rand = randomlib.randint(0, 1)
+                rand = randint(0, 1)
                 if rand == 0:
                     yield (0, dy)
                 else:
@@ -145,7 +144,7 @@ def chasing_step(self, neighbourhood=8):
         elif dist_x > dist_y:
             return (-dx, 0)
         else:
-            rand = randomlib.randint(0, 1)
+            rand = randint(0, 1)
             if rand == 0:
                 return (0, -dy)
             else:
@@ -192,6 +191,7 @@ def glasses(self, neighbourhood=4):
             dx = -sign(self.xpos - game.pc.xpos)
         yield (dx, dy)
 
+
 def angry(self):
     game = self.game
     player_seen = False
@@ -203,6 +203,7 @@ def angry(self):
                 player_seen = True
                 self.image = self.game.sprite_textures['guard_angry']
             yield (0, 0)
+
 
 """def unlucky(self):
     game = self.game
@@ -247,7 +248,7 @@ patterns = {
 class Creature(Sprite):
     def __init__(self, path, tile_width, tile_height, game_state,
                  xpos=0, ypos=0, health=3, defence=0, group=None,
-                 name='none', damage=1, hitsound = 'player_hit'):
+                 name='none', damage=1, hitsound='player_hit'):
         img = game_state.sprite_textures[path]
         self.stats = {DMG: damage, DEF: defence, HP: health, HPMAX: health}
         self.name = name
@@ -335,7 +336,7 @@ class Player(Creature):
     def on_damage(self, damage, source):
         super().on_damage(damage, source)
         self.update_status()
-        source.hit.play()
+        # source.hit.play()
         if self.stats[HP] <= 0:
             self.game.game_window.lose()
         if self.stats[HP] < 3:
@@ -358,7 +359,7 @@ class Enemy(Creature):
                  xpos=0, ypos=0, group=None, health=3,
                  move_pattern=still, move_params=(), name='enemy',
                  gold=0, exp=0, hitsound='bandit_hit'):
-        super().__init__('guard', tile_width, tile_height, game_state,
+        super().__init__(path, tile_width, tile_height, game_state,
                          xpos=xpos, ypos=ypos, group=group,
                          health=health, name=name, hitsound=hitsound)
         if type(move_pattern) == str:
@@ -412,20 +413,21 @@ class Enemy(Creature):
             self.game.enemies.remove(self)
             self.game.pc.stats[G] += self.stats[G]
             self.game.pc.stats[EXP] += self.stats[EXP]
-            self.healthbar.delete()
-            # item.Item.from_JSON('items/nugget.json', xpos=self.xpos, ypos=self.ypos)
+            #item.Item.from_JSON('items/nugget.json', self.game,
+            #                    xpos=self.xpos, ypos=self.ypos)
             self.delete()
             return None
-        self.healthbar.image = create(
-            round(24 * self.stats[HP] / self.stats[HPMAX]),
-            4, SolidColorImagePattern(RED)
-        )
+        self.healthbar.scale_x = self.stats[HP]/self.stats[HPMAX]
         self.healthbar.draw()
 
     def update_pos(self):
         super().update_pos()
         self.healthbar.x = self.x
         self.healthbar.y = self.y
+
+    def delete(self):
+        self.healthbar.delete()
+        return super().delete()
 
     @staticmethod
     def from_json(path, game, xp=0, yp=0):
@@ -437,7 +439,8 @@ class Enemy(Creature):
         ret = Enemy(tile_height=24, tile_width=24, game_state=game,
                     xpos=xp, ypos=yp, **base_stats)
         for stat in LEVELED_STATS:
-            ret.stats[stat] *= 1 + LEVELING_FACTOR * game.stage * (2 * game.difficulty + 1)
+            ret.stats[stat] *= 1 + LEVELING_FACTOR * \
+                game.stage * (2 * game.difficulty + 1)
         for stat in RANDOMIZED_STATS:
             ret.stats[stat] *= normalvariate(1, VAR)
         for stat in LEVELED_STATS | RANDOMIZED_STATS:
@@ -455,13 +458,15 @@ def add_enemies(game):
     for cor in range(3):
         for side in range(2):
             for cell in range(4):
-                rand = randomlib.randint(0, 3)
+                rand = randint(0, 3)
                 if rand == 0:
                     Enemy.from_json(primary_bandit_type[game.stage - 1], game, xp=cor * 15 + side * 10 + 2,
                                     yp=(cell + 1) * 5 + 2)
                 else:
                     Enemy.from_json(secondary_bandit_type[game.stage - 1], game, xp=cor * 15 + side * 10 + 2,
                                     yp=(cell + 1) * 5 + 2)
-    Enemy.from_json(guard_type[game.stage - 1], game, xp=7 + 15 * game.end_staircase, yp=game.height - 6)
+    Enemy.from_json(guard_type[game.stage - 1], game,
+                    xp=7 + 15 * game.end_staircase, yp=game.height - 6)
     if game.stage == 3:
-        Enemy.from_json('enemies/guardian_chasing.json', game, xp=game.pc.xpos, yp=game.pc.ypos - 1)
+        Enemy.from_json('enemies/guardian_chasing.json', game,
+                        xp=game.pc.xpos, yp=game.pc.ypos - 1)

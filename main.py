@@ -33,8 +33,8 @@ class GameState:
         
         self.tile_textures = {
             'bars': load_image('img/bars.png').get_image_data(),
-            'dirt_floor': load_image('img/dirt-floor.png').get_image_data(),
-            'dirt_wall': load_image('img/dirt-wall.png').get_image_data(),
+            'floor': load_image('img/dirt-floor.png').get_image_data(),
+            'wall': load_image('img/dirt-wall.png').get_image_data(),
             'rubble': load_image('img/rubble.png').get_image_data(),
             'stairs': load_image('img/stairs.png').get_image_data(),
         }

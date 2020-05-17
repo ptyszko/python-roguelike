@@ -5,12 +5,12 @@ from json import loads
 
 class Item(pyglet.sprite.Sprite):
     def __init__(self, path, game, name, stat, effect, xpos=0, ypos=0):
-        img = pyglet.image.load(path)
-        while xpos == 0 or xpos == game.pc.xpos:
+        img = game.sprite_textures[path]
+        '''while xpos == 0 or xpos == game.pc.xpos:
             xpos = randint(1, game.width - 2)
         while ypos == 0 or ypos == game.pc.ypos:
             ypos = randint(game.cell_size, game.height - 1 - game.cell_size)
-            
+         '''   
         self.xpos = xpos
         self.ypos = ypos
         super().__init__(img=img, x=self.xpos*24, y=self.ypos*24, batch=game.sprites)
@@ -24,7 +24,7 @@ class Item(pyglet.sprite.Sprite):
         return f'{self._name} ({self.stat}{self.effect:+d})'
 
     @staticmethod
-    def from_JSON(path, xpos=0, ypos=0):
+    def from_JSON(path, game, xpos=0, ypos=0):
         """
         Wygląd pliku <item>.json - obiekt z polami:
         
@@ -36,19 +36,19 @@ class Item(pyglet.sprite.Sprite):
         
         name (opcjonalne) = nazwa przedmiotu / slot w którym jest założony
         
-        path = ścieżka do tekstury"""
+        path = nazwa tekstury w GameState.sprite_textures"""
         with open(path, 'r') as fin:
             specs = loads(''.join(fin.readlines()))
 
         type = specs.pop('type', '')
         if type == 'consumable':
-            return Consumable(xpos=xpos, ypos=ypos, **specs)
+            return Consumable(game=game, xpos=xpos, ypos=ypos, **specs)
         elif type == 'equippable':
-            return Equippable(xpos=xpos, ypos=ypos, **specs)
+            return Equippable(game=game, xpos=xpos, ypos=ypos, **specs)
 
 
 class Consumable(Item):
-    def __init__(self, path, game, stat, effect, name='consumable', xpos=0, ypos=0):
+    def __init__(self, game, stat, effect, path='item', name='consumable', xpos=0, ypos=0):
         super().__init__(path, game, name, stat, effect, xpos=xpos, ypos=ypos)
         self.game.consumables.add(self)
     
@@ -60,7 +60,7 @@ class Consumable(Item):
         
         
 class Equippable(Item):
-    def __init__(self, path, game, stat, effect, name='equippable', xpos=0, ypos=0):
+    def __init__(self, game, stat, effect, path='item', name='equippable', xpos=0, ypos=0):
         super().__init__(path, game, name, stat, effect, xpos=xpos, ypos=ypos)
         self.game.equippables.add(self)
     
@@ -74,7 +74,7 @@ class Equippable(Item):
         self.game.pc.stats[self.stat] += self.effect
         self.game.pc.normalize()
         self.game.equippables.remove(self)
-        self.image = pyglet.image.Texture.create(1,1)
+        self.visible(False)
         
     def unequip(self):
         self.game.pc.inv.pop(self._name)
