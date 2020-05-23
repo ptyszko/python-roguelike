@@ -3,5 +3,6 @@
 	"health": 3,
 	"move_pattern": "wary",
 	"path": "bandit_wary",
-	"gold": 2
+	"gold": 2,
+	"exp": 3
 }

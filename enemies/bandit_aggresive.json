@@ -3,5 +3,6 @@
 	"health": 3,
 	"move_pattern": "aggresive",
 	"path": "bandit_aggr",
-	"gold": 2
+	"gold": 2,
+	"exp": 3
 }

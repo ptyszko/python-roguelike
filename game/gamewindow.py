@@ -19,11 +19,11 @@ class Game(pyglet.window.Window):
         self.rubble = game_state.tile_textures['rubble']
 
         # do wyciemnienia przy fow
-        """self.dark_floor = pyglet.image.load('img/dirt-floor.png').get_image_data()
-        self.dark_wall = pyglet.image.load('img/dirt-wall.png').get_image_data()
-        self.dark_stairs = pyglet.image.load('img/stairs.png').get_image_data()
-        self.dark_bars = pyglet.image.load('img/bars.png').get_image_data()
-        self.dark_rubble = pyglet.image.load('img/rubble.png').get_image_data()"""
+        """self.dark_floor = game_state.tile_textures['floor']
+        self.dark_wall = game_state.tile_textures['wall']
+        self.dark_stairs = game_state.tile_textures['stairs']
+        self.dark_bars = game_state.tile_textures['bars']
+        self.dark_rubble = game_state.tile_textures['rubble']"""
 
         self.tile_width = self.floor.width
         self.tile_height = self.floor.height
@@ -33,8 +33,10 @@ class Game(pyglet.window.Window):
         self.time_to_move = game_state.timeout_limit
 
         # korekcja rozmiaru okna
-        self.width = (game_state.width-2) * self.tile_width + 100
-        self.height = (game_state.height-2) * self.tile_height + 40
+        self.width = ((game_state.width*game_state.cell_size - 2) 
+                      * self.tile_width + 100)
+        self.height = ((game_state.width*game_state.cell_size - 2) 
+                       * self.tile_height + 40)
         game_state.status_bar = pyglet.text.Label(
             x=0, y=self.height, anchor_y='top', batch=self.main_batch,
             font_name=fonts.SANS, font_size=20
@@ -95,7 +97,7 @@ class Game(pyglet.window.Window):
         height = self.game_state.height
         width = self.game_state.width
         self.game_state.map, self.game_state.layout, self.game_state.end_staircase = generate_level(
-            width, height, start_staircase, start_direction_up)
+            self.game_state, start_staircase, start_direction_up)
         for ycoord, row in enumerate(self.game_state.map[1:-1], 1):
             for xcoord, cur_tile in enumerate(row[1:-1], 1):
                 try:
@@ -124,15 +126,9 @@ class Game(pyglet.window.Window):
         self.redraw()
         if symbol in keys.DIRECTIONAL:
             self.pc.move(*keys.DIRECTIONS_DICT[symbol])
-            # print(f'moved {keys.DIRECTIONS_DICT[symbol]}')
-            self.update()
-        else:
-            if self.pc.stats[creature.HP] < self.pc.stats[creature.HPMAX]:
-                self.pc.stats[creature.HP] += 1
-                if self.pc.stats[creature.HP] >= 3:
-                    self.pc.image = pyglet.image.load('img/player.png')
-            self.pc.update_status()
-            self.update()
+        elif symbol == keys.SPACE:
+            self.pc.heal()
+        self.update()
         if self.game_state.next_stage:
             start_staircase = (self.pc.xpos - 5) // 15
             start_direction_up = True

@@ -3,5 +3,6 @@
 	"health": 10,
 	"move_pattern": "glasses",
 	"path": "guard_glass",
-	"gold": 5
+	"gold": 5,
+	"exp": 10
 }

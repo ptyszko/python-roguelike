@@ -3,5 +3,6 @@
 	"health": 10,
 	"move_pattern": "unlucky",
 	"path": "guard_def",
-	"gold": 5
+	"gold": 5,
+	"exp": 10
 }

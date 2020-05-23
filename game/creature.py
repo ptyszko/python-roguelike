@@ -25,11 +25,12 @@ DEF = 'defence'
 EXP = 'exp'
 HPMAX = 'maxhealth'
 G = 'gold'
+LV = 'level'
+NLV = 'exp to next level'
 
 RANDOMIZED_STATS = {
     DMG, EXP  # , HP
 }
-
 LEVELED_STATS = {
     HP, DMG, G
 }
@@ -296,6 +297,8 @@ class Player(Creature):
                          group=group, name='Player')
         self.game.pc = self
         self.stats[EXP] = self.stats[G] = 0
+        self.stats[LV] = 1
+        self.stats[NLV] = 50
         self.inv = {}
         self.status_indicator = Label(
             x=self.game.game_window.width,
@@ -344,21 +347,44 @@ class Player(Creature):
 
     def update_status(self):
         self.status_indicator.text = f'''HP: {self.stats[HP]}/{self.stats[HPMAX]}
-x: {self.xpos}
-y: {self.ypos}
-gold: {self.stats[G]}'''
+level {self.stats[LV]}
+EXP: {self.stats[EXP]}/{self.stats[NLV]}
+ATK: {self.stats[DMG]}
+DEF: {self.stats[DEF]}
+{self.stats[G]} G'''
 
     def normalize(self):
         self.stats[HPMAX] = max(1, self.stats[HPMAX])
         self.stats[HP] = max(min(self.stats[HP], self.stats[HPMAX]), 1)
         self.update_status()
 
+    def heal(self, points=1):
+        self.stats[HP] += points
+        if self.stats[HP] >= 3:
+            self.image = self.game.sprite_textures['player']
+        self.normalize()
+        
+    def attack(self, target):
+        super().attack(target)
+        if self.stats[EXP] >= self.stats[NLV]:
+            self.levelup()
+            
+    def levelup(self):
+        self.stats[LV] += 1
+        self.stats[EXP] -= self.stats[NLV]
+        self.stats[NLV] = self.stats[LV] * 50
+        if self.stats[LV] % 2 == 1:
+            self.stats[DMG] += 1
+        else:
+            self.stats[HPMAX] += 1
+            self.heal()
+
 
 class Enemy(Creature):
     def __init__(self, path, tile_width, tile_height, game_state,
                  xpos=0, ypos=0, group=None, health=3,
                  move_pattern=still, move_params=(), name='enemy',
-                 gold=0, exp=0, hitsound='bandit_hit'):
+                 gold=1, exp=1, hitsound='bandit_hit'):
         super().__init__(path, tile_width, tile_height, game_state,
                          xpos=xpos, ypos=ypos, group=group,
                          health=health, name=name, hitsound=hitsound)
@@ -413,7 +439,7 @@ class Enemy(Creature):
             self.game.enemies.remove(self)
             self.game.pc.stats[G] += self.stats[G]
             self.game.pc.stats[EXP] += self.stats[EXP]
-            #item.Item.from_JSON('items/nugget.json', self.game,
+            # item.Item.from_JSON('items/nugget.json', self.game,
             #                    xpos=self.xpos, ypos=self.ypos)
             self.delete()
             return None

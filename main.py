@@ -24,8 +24,8 @@ class GameState:
         self.items = pyglet.graphics.Batch()
         self.stages = 3
         self.cell_size = 5
-        self.width = 45  # w tile-ach, wielokrotność 3*sell_size
-        self.height = 30  # wielokrotność cell_size
+        self.width = 9  # w tile-ach, wielokrotność 3*sell_size
+        self.height = 6  # wielokrotność cell_size
         self.status_bar = None
         self.difficulty = 0
         self.groups = [pyglet.graphics.OrderedGroup(0),
