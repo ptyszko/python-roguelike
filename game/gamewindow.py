@@ -33,10 +33,8 @@ class Game(pyglet.window.Window):
         self.time_to_move = game_state.timeout_limit
 
         # korekcja rozmiaru okna
-        self.width = ((game_state.width*game_state.cell_size - 2) 
-                      * self.tile_width + 100)
-        self.height = ((game_state.width*game_state.cell_size - 2) 
-                       * self.tile_height + 40)
+        self.width = (game_state.width-2) * self.tile_width + 100
+        self.height = (game_state.height-2) * self.tile_height + 40
         game_state.status_bar = pyglet.text.Label(
             x=0, y=self.height, anchor_y='top', batch=self.main_batch,
             font_name=fonts.SANS, font_size=20
@@ -97,7 +95,7 @@ class Game(pyglet.window.Window):
         height = self.game_state.height
         width = self.game_state.width
         self.game_state.map, self.game_state.layout, self.game_state.end_staircase = generate_level(
-            self.game_state, start_staircase, start_direction_up)
+            width, height, start_staircase, start_direction_up)
         for ycoord, row in enumerate(self.game_state.map[1:-1], 1):
             for xcoord, cur_tile in enumerate(row[1:-1], 1):
                 try:
