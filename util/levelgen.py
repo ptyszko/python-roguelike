@@ -5,25 +5,13 @@ from .MazeGenerator import floor
 # do zamienienia przez generację poziomów
 
 
-def generate_level(width, height, start_staircase, start_direction_up): #-> List[List[str]]:
-    ret = []
-    for i in range(height):
-        ret.append([])
-        '''for j in range(width):
-            if i*j == 0 or i == height-1 or j == width-1:
-                ret[i].append(WALL)
-            else:
-                ret[i].append(C_FLOOR)'''
-    return add_game_elems(ret, width, height, start_staircase, start_direction_up)
-
-
-def add_game_elems(map_tiles, width, height, start_staircase, start_direction_up):
-    cell_size = 5
-    corridors = width//15
-    cells = height//5 - 2
+def generate_level(game_state, start_staircase, start_direction_up):
+    cell_size = game_state.cell_size
+    corridors = game_state.width // 3 // cell_size
+    cells = game_state.height // cell_size - 2
     map_tiles, layout, end_staircase = floor(cell_size, corridors,
-                              cells, start_staircase, start_direction_up)
-    # print(f'height: {len(map_tiles)}, width: {len(map_tiles[0])}')
+                                             cells, start_staircase, start_direction_up)
+    print(f'height: {len(map_tiles)}, width: {len(map_tiles[0])}')
     return map_tiles, layout, end_staircase
 # koniec części do zamienienia
 
