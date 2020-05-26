@@ -57,6 +57,58 @@ def random(self, neighborhood=4, freq=1):
         yield choice(moves) if move == 0 else (0, 0)
         move = (move + 1) % freq
 
+def standard(self):
+    game = self.game
+    player_hit = False
+    player_seen = False
+    while True:
+        if game.pc.stats[HP] < game.pc.stats[HPMAX]:
+            player_hit = True
+        if (abs(self.ypos - game.pc.ypos) + abs(self.xpos - game.pc.xpos)) == 1:
+            player_hit = True
+        if player_hit:
+            if room(self) == room(game.pc):
+                player_seen = True
+            if player_seen:
+                yield (chasing_step(self))
+            else:
+                rand = (randint(1,10)-5,randint(1,10)-5)
+                if (abs(rand[0])>abs(rand[1])):
+                    yield(sign(rand[0]), 0)
+                elif (abs(rand[0])<abs(rand[1])):
+                    yield(0, sign(rand[1]))
+                else:
+                    yield(0, 0)
+        else:
+            rand = (randint(1,10)-5,randint(1,10)-5)
+            if (abs(rand[0])>abs(rand[1])):
+                yield(sign(rand[0]), 0)
+            elif (abs(rand[0])<abs(rand[1])):
+                yield(0, sign(rand[1]))
+            else:
+                yield(0, 0)
+
+def door(self):
+    game = self.game
+    player_hit = False
+    player_seen = False
+    while True:
+        if game.pc.stats[HP] < game.pc.stats[HPMAX]:
+            player_hit = True
+        if (abs(self.ypos - game.pc.ypos) + abs(self.xpos - game.pc.xpos)) == 1:
+            player_hit = True
+        if player_hit:
+            yield (chasing_step(self))
+            if room(self) == room(game.pc):
+                player_seen = True
+            if player_seen:
+                yield (chasing_step(self))
+            else:
+                yield (0, 0)
+        elif room(self) == room(game.pc):
+            yield(-1, 0)
+        else:
+            yield(0, 0)
 
 def aggresive(self, neighbourhood=8):
     game = self.game
@@ -90,28 +142,17 @@ def aggresive(self, neighbourhood=8):
             yield (0, 0)
 """
 
-
-def coward(self, neighbourhood=8):
+def coward(self):
     game = self.game
     while True:
-        if (room(self) == room(game.pc)):
-            dist_x = abs(self.xpos - game.pc.xpos)
-            dist_y = abs(self.ypos - game.pc.ypos)
-            dx = sign(self.xpos - game.pc.xpos)
-            dy = sign(self.ypos - game.pc.ypos)
-            if dist_x < dist_y:
-                yield (0, dy)
-            elif dist_x > dist_y:
-                yield (dx, 0)
-            else:
-                rand = randint(0, 1)
-                if rand == 0:
-                    yield (0, dy)
-                else:
-                    yield (dx, 0)
+        if (abs(self.ypos - game.pc.ypos)) == 1 and (abs(self.xpos - game.pc.xpos)) == 0:
+            rand = randint(0,1)
+            yield (-2*rand+1, 0)
+        elif (abs(self.ypos - game.pc.ypos)) == 0 and (abs(self.xpos - game.pc.xpos)) == 1:
+            rand = randint(0,1)
+            yield (0, -2*rand+1)
         else:
             yield (0, 0)
-
 
 def room(self):
     game = self.game
@@ -123,7 +164,7 @@ def room(self):
 def change_room(self, variant):
     change_map = [[(-1, 0), self.ypos, (0, 1)], [(0, 1), self.xpos, (1, 0)], [(1, 0), self.ypos, (0, 1)],
                   [(0, -1), self.xpos, (1, 0)]]
-    if change_map[variant][1] % 5 == 2:
+    if change_map[variant][1] % 5 == 2 or ((variant==1 or variant==3) and (room(self)[1]) % 3 == 1):
         return (change_map[variant][0])
     elif change_map[variant][1] % 5 < 2:
         return change_map[variant][2]
@@ -176,6 +217,18 @@ def chasing(self):
         counter += 1
         counter = counter % 5
 
+def fierce(self):
+    counter = 0
+    while room(self) != room(self.game.pc):
+        yield (0, 0)
+    while True:
+        if counter != 4:
+            yield (chasing_step(self))
+        else:
+            yield (0, 0)
+        counter += 1
+        counter = counter % 5
+
 
 def glasses(self, neighbourhood=4):
     game = self.game
@@ -210,8 +263,27 @@ def angry(self):
     game = self.game
     while True:
         yield (0, 0)"""
-unlucky = still
 
+def unlucky(self):
+    counter = 0
+    game = self.game
+    while room(self) != room(game.pc):
+        yield(0, 0)
+    while True:
+        counter += 1
+        if counter == 1:
+            yield(0, -1)
+        elif counter == 10:
+            self.image = game.tile_textures['rubble']
+            counter -= 1
+            if room(self) == room(game.pc):
+                self.game.pc.image = self.game.sprite_textures['player_d']
+            yield(0, 0)
+        elif (abs(self.ypos - game.pc.ypos)) == 1 and (abs(self.xpos - game.pc.xpos)) == 0:
+            yield (0, game.pc.ypos - self.ypos)
+        elif (abs(self.ypos - game.pc.ypos)) == 0 and (abs(self.xpos - game.pc.xpos)) == 1:
+            yield (game.pc.xpos - self.xpos, 0)
+        yield(0, 0)
 
 def wary(self):
     game = self.game
@@ -242,7 +314,8 @@ patterns = {
     'glasses': glasses, 'coward': coward,
     'chasing': chasing, 'wary': wary,
     'goldenrule': goldenrule, 'angry': angry,
-    'unlucky': unlucky
+    'unlucky': unlucky, 'fierce': fierce,
+    'standard': standard, 'door': door
 }
 
 
@@ -475,24 +548,41 @@ class Enemy(Creature):
 
 def add_enemies(game):
     primary_bandit_type = ['enemies/bandit_coward.json', 'enemies/bandit_goldenrule.json',
-                           'enemies/bandit_wary.json', 'enemies/bandit_aggresive.json']
+                           'enemies/bandit_wary.json', 'enemies/bandit_fierce.json']
     secondary_bandit_type = ['enemies/bandit_goldenrule.json', 'enemies/bandit_wary.json',
-                             'enemies/bandit_aggresive.json', 'enemies/bandit_aggresive.json']
+                             'enemies/bandit_fierce.json', 'enemies/bandit_fierce.json']
     guard_type = ['enemies/guardian_glasses.json', 'enemies/guardian_angry.json', 'enemies/guardian_unlucky.json',
                   'enemies/guardian_standard.json']
 
-    for cor in range(3):
-        for side in range(2):
-            for cell in range(4):
-                rand = randint(0, 3)
-                if rand == 0:
-                    Enemy.from_json(primary_bandit_type[game.stage - 1], game, xp=cor * 15 + side * 10 + 2,
-                                    yp=(cell + 1) * 5 + 2)
+    corridors = game.width // 3 // game.cell_size
+    cells = game.height // game.cell_size - 2
+
+    if game.stage == 5:
+        for cor in range(corridors):
+            for cell in range(cells):
+                if (cor == 0 and cell == 0):
+                    pass
+                elif (cor == game.end_staircase and cell == cells-1):
+                    pass
                 else:
-                    Enemy.from_json(secondary_bandit_type[game.stage - 1], game, xp=cor * 15 + side * 10 + 2,
-                                    yp=(cell + 1) * 5 + 2)
-    Enemy.from_json(guard_type[game.stage - 1], game,
-                    xp=7 + 15 * game.end_staircase, yp=game.height - 6)
-    if game.stage == 3:
-        Enemy.from_json('enemies/guardian_chasing.json', game,
-                        xp=game.pc.xpos, yp=game.pc.ypos - 1)
+                    Enemy.from_json('enemies/guardian_standard.json', game, xp=cor * 15 + 7,
+                                        yp=(cell + 1) * 5 + 2)
+        Enemy.from_json('enemies/guardian_door.json', game,
+                        xp=7 + 15 * game.end_staircase, yp=game.height - 6)
+
+    else:
+        for cor in range(corridors):
+            for side in range(2):
+                for cell in range(cells):
+                    rand = randint(0, 4)
+                    if rand == 0:
+                        Enemy.from_json(primary_bandit_type[game.stage - 1], game, xp=cor * 15 + side * 10 + 2,
+                                        yp=(cell + 1) * 5 + 2)
+                    else:
+                        Enemy.from_json(secondary_bandit_type[game.stage - 1], game, xp=cor * 15 + side * 10 + 2,
+                                        yp=(cell + 1) * 5 + 2)
+        Enemy.from_json(guard_type[game.stage - 1], game,
+                        xp=7 + 15 * game.end_staircase, yp=game.height - 6)
+        if game.stage == 3:
+            Enemy.from_json('enemies/guardian_chasing.json', game,
+                            xp=game.pc.xpos, yp=game.pc.ypos - 1)

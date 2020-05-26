@@ -1,0 +1,8 @@
+{
+	"name": "bandit",
+	"health": 1,
+	"move_pattern": "fierce",
+	"path": "bandit_fierce",
+	"gold": 5,
+	"exp": 0
+}

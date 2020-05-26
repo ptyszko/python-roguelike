@@ -1,8 +1,8 @@
 {
 	"name": "bandit",
-	"health": 3,
+	"health": 1,
 	"move_pattern": "coward",
 	"path": "bandit_coward",
-	"gold": 2,
-	"exp": 1
+	"gold": 0,
+	"exp": 30
 }

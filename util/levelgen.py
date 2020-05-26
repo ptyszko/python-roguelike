@@ -1,7 +1,7 @@
 from typing import List
 from .tile import *
 from random import randint
-from .MazeGenerator import floor
+from .mazegenerator import floor
 # do zamienienia przez generację poziomów
 
 

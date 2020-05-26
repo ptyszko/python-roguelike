@@ -47,6 +47,7 @@ class GameState:
             'bandit_disg': load_image('img/bandit_disguised.png'),
             'bandit_wander': load_image('img/bandit_wandering.png'),
             'bandit_wary': load_image('img/bandit_wary.png'),
+            'bandit_fierce': load_image('img/bandit_fierce.png'),
             
             'guard': load_image('img/guard.png'),
             'guard_angry': load_image('img/guard_angry.png'),
@@ -55,6 +56,7 @@ class GameState:
             'guard_glass': load_image('img/guard_glasses.png'),
             'guard_unlk': load_image('img/guard_unlucky.png'),
             'guard': load_image('img/guard.png'),
+            'guard_blnk': load_image('img/guard_blank.png'),
             
             'player': load_image('img/player.png'),
             'player_h': load_image('img/player_hurt.png'),
