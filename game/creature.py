@@ -63,6 +63,8 @@ def random_step(self):
         return(sign(rand[0]), 0)
     elif (abs(rand[0])<abs(rand[1])):
         return(0, sign(rand[1]))
+    else:
+        return(0, 0)
 
 def standard(self):
     game = self.game
@@ -558,7 +560,7 @@ def add_enemies(game):
     if game.stage == 5:
         for cor in range(corridors):
             for cell in range(cells):
-                if (cor == room(game.pc)[0]+1 and cell == 0):
+                if (cor == room(game.pc)[1]-1 and cell == 0):
                     pass
                 elif (cor == game.end_staircase and cell == cells-1):
                     pass
