@@ -22,7 +22,7 @@ class GameState:
         self.equippables = set()
         self.sprites = pyglet.graphics.Batch()
         self.items = pyglet.graphics.Batch()
-        self.stages = 3
+        self.stages = 5
         self.cell_size = 5
         self.width = 45  # w tile-ach, wielokrotność 3*sell_size
         self.height = 30  # wielokrotność cell_size

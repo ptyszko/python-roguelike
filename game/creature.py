@@ -57,6 +57,13 @@ def random(self, neighborhood=4, freq=1):
         yield choice(moves) if move == 0 else (0, 0)
         move = (move + 1) % freq
 
+def random_step(self):
+    rand = (randint(1,10)-5,randint(1,10)-5)
+    if (abs(rand[0])>abs(rand[1])):
+        return(sign(rand[0]), 0)
+    elif (abs(rand[0])<abs(rand[1])):
+        return(0, sign(rand[1]))
+
 def standard(self):
     game = self.game
     player_hit = False
@@ -72,21 +79,9 @@ def standard(self):
             if player_seen:
                 yield (chasing_step(self))
             else:
-                rand = (randint(1,10)-5,randint(1,10)-5)
-                if (abs(rand[0])>abs(rand[1])):
-                    yield(sign(rand[0]), 0)
-                elif (abs(rand[0])<abs(rand[1])):
-                    yield(0, sign(rand[1]))
-                else:
-                    yield(0, 0)
+                yield(random_step(self))
         else:
-            rand = (randint(1,10)-5,randint(1,10)-5)
-            if (abs(rand[0])>abs(rand[1])):
-                yield(sign(rand[0]), 0)
-            elif (abs(rand[0])<abs(rand[1])):
-                yield(0, sign(rand[1]))
-            else:
-                yield(0, 0)
+            yield(random_step(self))
 
 def door(self):
     game = self.game
@@ -98,7 +93,6 @@ def door(self):
         if (abs(self.ypos - game.pc.ypos) + abs(self.xpos - game.pc.xpos)) == 1:
             player_hit = True
         if player_hit:
-            yield (chasing_step(self))
             if room(self) == room(game.pc):
                 player_seen = True
             if player_seen:
@@ -251,7 +245,11 @@ def angry(self):
     player_seen = False
     while True:
         if player_seen:
-            yield chasing_step(self)
+            rand = randint(1,4)
+            if rand == 1:
+                yield (0, 0)
+            else:
+                yield chasing_step(self)
         else:
             if (room(self) == room(game.pc)):
                 player_seen = True
@@ -552,7 +550,7 @@ def add_enemies(game):
     secondary_bandit_type = ['enemies/bandit_goldenrule.json', 'enemies/bandit_wary.json',
                              'enemies/bandit_fierce.json', 'enemies/bandit_fierce.json']
     guard_type = ['enemies/guardian_glasses.json', 'enemies/guardian_angry.json', 'enemies/guardian_unlucky.json',
-                  'enemies/guardian_standard.json']
+                  'enemies/guardian_door.json']
 
     corridors = game.width // 3 // game.cell_size
     cells = game.height // game.cell_size - 2
@@ -560,7 +558,7 @@ def add_enemies(game):
     if game.stage == 5:
         for cor in range(corridors):
             for cell in range(cells):
-                if (cor == 0 and cell == 0):
+                if (cor == room(game.pc)[0]+1 and cell == 0):
                     pass
                 elif (cor == game.end_staircase and cell == cells-1):
                     pass
@@ -576,10 +574,10 @@ def add_enemies(game):
                 for cell in range(cells):
                     rand = randint(0, 4)
                     if rand == 0:
-                        Enemy.from_json(primary_bandit_type[game.stage - 1], game, xp=cor * 15 + side * 10 + 2,
+                        Enemy.from_json(secondary_bandit_type[game.stage - 1], game, xp=cor * 15 + side * 10 + 2,
                                         yp=(cell + 1) * 5 + 2)
                     else:
-                        Enemy.from_json(secondary_bandit_type[game.stage - 1], game, xp=cor * 15 + side * 10 + 2,
+                        Enemy.from_json(primary_bandit_type[game.stage - 1], game, xp=cor * 15 + side * 10 + 2,
                                         yp=(cell + 1) * 5 + 2)
         Enemy.from_json(guard_type[game.stage - 1], game,
                         xp=7 + 15 * game.end_staircase, yp=game.height - 6)

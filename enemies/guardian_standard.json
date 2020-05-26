@@ -1,6 +1,6 @@
 {
 	"name": "guard",
-	"health": 10,
+	"health": 100,
 	"move_pattern": "standard",
 	"path": "guard_def",
 	"gold": 5,

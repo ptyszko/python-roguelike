@@ -1,6 +1,6 @@
 {
 	"name": "guard",
-	"health": 1,
+	"health": 100,
 	"move_pattern": "chasing",
 	"path": "guard_chase",
 	"gold": 5

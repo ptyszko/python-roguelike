@@ -1,6 +1,6 @@
 {
 	"name": "guard",
-	"health": 10,
+	"health": 100,
 	"move_pattern": "unlucky",
 	"path": "guard_unlk",
 	"gold": 5,

@@ -1,6 +1,6 @@
 {
 	"name": "guard",
-	"health": 10,
+	"health": 100,
 	"move_pattern": "glasses",
 	"path": "guard_glass",
 	"gold": 5,
