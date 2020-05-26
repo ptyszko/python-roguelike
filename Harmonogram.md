@@ -33,4 +33,4 @@ gdzie niewymienione - docelowo:
 # Krok 5
 * Rozszerzanie istniejących aspektów
 * Punktacja ✔ - zegar speedrun'owy, złoto
-* (może) poziomy postaci
+* (może) poziomy postaci ✔ - wpływają na atak i zdrowie postaci
