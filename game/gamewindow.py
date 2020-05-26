@@ -8,6 +8,7 @@ from random import randint
 class Game(pyglet.window.Window):
     def __init__(self, game_state, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.set_location(0, 0)
         self.game_state = game_state
         game_state.game_window = self
 
