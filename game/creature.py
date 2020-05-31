@@ -1,6 +1,6 @@
 import networkx as nx
 from itertools import repeat, chain, cycle as _cycle
-from random import choice, normalvariate, randint
+from random import choice, normalvariate, randint, choices
 from json import loads
 from pyglet.sprite import Sprite
 from pyglet.image import create, SolidColorImagePattern
@@ -157,7 +157,6 @@ def coward(self):
 
 
 def room(self):
-    game = self.game
     row = (self.ypos) // 5 - 1
     col = (self.xpos) // 5
     return (row, col)
@@ -285,7 +284,10 @@ def unlucky(self):
             self.image = game.tile_textures['rubble']
             counter -= 1
             if room(self) == room(game.pc):
-                self.game.pc.image = self.game.sprite_textures['player_d']
+                game.pc.image = (game.sprite_textures['player_d']
+                                 if game.pc.stats[HP] >= 3
+                                 else game.sprite_textures['player_dh'])
+                game.pc.disguised = True
             yield(0, 0)
         elif (abs(self.ypos - game.pc.ypos)) == 1 and (abs(self.xpos - game.pc.xpos)) == 0:
             yield (0, game.pc.ypos - self.ypos)
@@ -329,10 +331,10 @@ patterns = {
 
 
 class Creature(Sprite):
-    def __init__(self, path, tile_width, tile_height, game_state,
+    def __init__(self, tex_name, tile_width, tile_height, game_state,
                  xpos=0, ypos=0, health=3, defence=0, group=None,
                  name='none', damage=1, hitsound='player_hit'):
-        img = game_state.sprite_textures[path]
+        img = game_state.sprite_textures[tex_name]
         self.stats = {DMG: damage, DEF: defence, HP: health, HPMAX: health}
         self.name = name
         self.game = game_state
@@ -389,6 +391,7 @@ class Player(Creature):
             font_size=20, anchor_x='right', anchor_y='top',
             batch=self.game.game_window.main_batch
         )
+        self.disguised = False
 
     def move(self, dx, dy):
         new_x = self.xpos + dx
@@ -408,14 +411,14 @@ class Player(Creature):
                 self.game.stage += 1
                 self.game.next_stage = True
 
-        found_items = (c for c in self.game.consumables
+        '''found_items = (c for c in self.game.consumables
                        if c.xpos == self.xpos and c.ypos == self.ypos)
         for item in found_items:
             item.consume()
         found_gear = (e for e in self.game.equippables
                       if e.xpos == self.xpos and e.ypos == self.ypos)
         for gear in found_gear:
-            gear.equip()
+            gear.equip()'''
         self.update_status()
 
     def on_damage(self, damage, source):
@@ -425,7 +428,9 @@ class Player(Creature):
         if self.stats[HP] <= 0:
             self.game.game_window.lose()
         if self.stats[HP] < 3:
-            self.game.pc.image = self.game.sprite_textures['player_h']
+            self.game.pc.image = (self.game.sprite_textures['player_h']
+                                  if not self.disguised
+                                  else self.game.sprite_textures['player_dh'])
 
     def update_status(self):
         self.status_indicator.text = f'''HP: {self.stats[HP]}/{self.stats[HPMAX]}
@@ -443,33 +448,36 @@ DEF: {self.stats[DEF]}
     def heal(self, points=1):
         self.stats[HP] += points
         if self.stats[HP] >= 3:
-            self.image = self.game.sprite_textures['player']
+            self.image = (self.game.sprite_textures['player'] 
+                          if not self.disguised 
+                          else self.game.sprite_textures['player_d'])
         self.normalize()
 
     def attack(self, target):
         super().attack(target)
-        if self.stats[EXP] >= self.stats[NLV]:
+        while self.stats[EXP] >= self.stats[NLV]:
             self.levelup()
 
     def levelup(self):
         self.stats[LV] += 1
         self.stats[EXP] -= self.stats[NLV]
         self.stats[NLV] = self.stats[LV] * 50
-        if self.stats[LV] % 2 == 1:
-            self.stats[DMG] += 1
-        else:
-            self.stats[HPMAX] += 1
-            self.heal()
+        stat = choices([DMG, HPMAX, DEF], cum_weights=[5,10,11])[0]
+        self.stats[stat] += 1
+        if stat == HPMAX:
+            self.heal(1)
 
 
 class Enemy(Creature):
-    def __init__(self, path, tile_width, tile_height, game_state,
+    def __init__(self, tex_name, tile_width, tile_height, game_state,
                  xpos=0, ypos=0, group=None, health=3,
                  move_pattern=still, move_params=(), name='enemy',
-                 gold=1, exp=1, hitsound='bandit_hit'):
-        super().__init__(path, tile_width, tile_height, game_state,
-                         xpos=xpos, ypos=ypos, group=group,
+                 gold=1, exp=1, hitsound='bandit_hit', damage=1):
+        super().__init__(tex_name, tile_width, tile_height, game_state,
+                         xpos=xpos, ypos=ypos, group=group, damage=damage,
                          health=health, name=name, hitsound=hitsound)
+
+        self.is_guard = 'guard' in tex_name
         if type(move_pattern) == str:
             self.move_pattern = patterns[move_pattern](
                 self, *move_params)
@@ -493,11 +501,11 @@ class Enemy(Creature):
         """
         new_x = self.xpos + dx
         new_y = self.ypos + dy
-        if (
-                self.game.pc.xpos == new_x
-                and self.game.pc.ypos == new_y
-        ):
-            self.attack(self.game.pc)
+        collision = [e for e in (self.game.enemies-{self})|{self.game.pc} 
+                     if new_x == e.xpos and new_y == e.ypos]
+        if collision != [] and (collision[0] is self.game.pc 
+                                or collision[0].is_guard != self.is_guard):
+            self.attack(collision[0])
             if self.cycle:
                 self.move_pattern = chain([(dx, dy)], self.move_pattern)
         elif (
@@ -505,9 +513,9 @@ class Enemy(Creature):
                 and 0 < new_y < self.game.height - 1
                 and self.game.map[new_y][new_x]
                 in tile.TRAVERSABLE
-                and not any(new_x == e.xpos
-                            and new_y == e.ypos
-                            for e in self.game.enemies - {self})
+                #and not any(new_x == e.xpos
+                #            and new_y == e.ypos
+                #            for e in self.game.enemies - {self})
         ):
             self.xpos += dx
             self.ypos += dy

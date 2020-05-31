@@ -2,7 +2,8 @@
 	"name": "guard",
 	"health": 100,
 	"move_pattern": "glasses",
-	"path": "guard_glass",
+	"tex_name": "guard_glass",
 	"gold": 5,
-	"exp": 10
+	"exp": 100,
+	"damage": 2
 }

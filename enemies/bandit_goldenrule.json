@@ -2,7 +2,7 @@
 	"name": "bandit",
 	"health": 3,
 	"move_pattern": "goldenrule",
-	"path": "bandit_def",
+	"tex_name": "bandit_def",
 	"gold": 2,
 	"exp": 20
 }

@@ -2,7 +2,7 @@
 	"name": "bandit",
 	"health": 1,
 	"move_pattern": "coward",
-	"path": "bandit_coward",
+	"tex_name": "bandit_coward",
 	"gold": 0,
 	"exp": 0
 }

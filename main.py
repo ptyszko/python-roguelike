@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 import pyglet
 from pyglet.image import load as load_image, ImageGrid, TextureGrid
 from pyglet.media import load as load_media, StaticSource

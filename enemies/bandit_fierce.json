@@ -2,7 +2,7 @@
 	"name": "bandit",
 	"health": 3,
 	"move_pattern": "fierce",
-	"path": "bandit_fierce",
+	"tex_name": "bandit_fierce",
 	"gold": 5,
 	"exp": 50
 }

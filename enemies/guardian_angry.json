@@ -2,6 +2,8 @@
   "name": "guard",
   "health": 100,
   "move_pattern": "angry",
-  "path": "guard_def",
-  "gold": 5
+  "tex_name": "guard_def",
+  "gold": 5,
+  "exp": 100,
+  "damage": 2
 }

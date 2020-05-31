@@ -2,7 +2,8 @@
 	"name": "guard",
 	"health": 100,
 	"move_pattern": "door",
-	"path": "guard_def",
+	"tex_name": "guard_def",
 	"gold": 5,
-	"exp": 10
+	"exp": 100,
+	"damage": 2
 }

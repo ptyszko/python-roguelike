@@ -2,7 +2,8 @@
 	"name": "guard",
 	"health": 100,
 	"move_pattern": "unlucky",
-	"path": "guard_unlk",
+	"tex_name": "guard_unlk",
 	"gold": 5,
-	"exp": 10
+	"exp": 100,
+	"damage": 2
 }
