@@ -18,13 +18,13 @@ class MainMenu(pyglet.window.Window):
 
         # create title and buttons
         def_style = {'x': self.width//2, 'batch': self.main_screen}
-        title_style = {'font_name':fonts.SERIF, 'font_size': 40, 
-                       'y': self.height-30, 'anchor_x': 'center', 
+        title_style = {'font_name': fonts.SERIF, 'font_size': 40,
+                       'y': self.height-30, 'anchor_x': 'center',
                        'anchor_y': 'center'}
 
         pyglet.text.Label(text='SOME ROGUELIKE', **def_style, **title_style)
 
-        pyglet.text.Label(text='SETTINGS', x=self.width//2, 
+        pyglet.text.Label(text='SETTINGS', x=self.width//2,
                           batch=self.settings_screen, **title_style)
 
         def_style['game_state'] = game_state
@@ -46,7 +46,7 @@ class MainMenu(pyglet.window.Window):
         self.main_buttons = [start, menu, exit]
 
         def_style['batch'] = self.settings_screen
-        def_style['font_size']=20
+        def_style['font_size'] = 20
 
         done = Button(
             text='Done', y=300,

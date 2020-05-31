@@ -57,14 +57,16 @@ def random(self, neighborhood=4, freq=1):
         yield choice(moves) if move == 0 else (0, 0)
         move = (move + 1) % freq
 
+
 def random_step(self):
-    rand = (randint(1,10)-5,randint(1,10)-5)
-    if (abs(rand[0])>abs(rand[1])):
+    rand = (randint(1, 10)-5, randint(1, 10)-5)
+    if (abs(rand[0]) > abs(rand[1])):
         return(sign(rand[0]), 0)
-    elif (abs(rand[0])<abs(rand[1])):
+    elif (abs(rand[0]) < abs(rand[1])):
         return(0, sign(rand[1]))
     else:
         return(0, 0)
+
 
 def standard(self):
     game = self.game
@@ -84,6 +86,7 @@ def standard(self):
                 yield(random_step(self))
         else:
             yield(random_step(self))
+
 
 def door(self):
     game = self.game
@@ -105,6 +108,7 @@ def door(self):
             yield(-1, 0)
         else:
             yield(0, 0)
+
 
 def aggresive(self, neighbourhood=8):
     game = self.game
@@ -138,17 +142,19 @@ def aggresive(self, neighbourhood=8):
             yield (0, 0)
 """
 
+
 def coward(self):
     game = self.game
     while True:
         if (abs(self.ypos - game.pc.ypos)) == 1 and (abs(self.xpos - game.pc.xpos)) == 0:
-            rand = randint(0,1)
+            rand = randint(0, 1)
             yield (-2*rand+1, 0)
         elif (abs(self.ypos - game.pc.ypos)) == 0 and (abs(self.xpos - game.pc.xpos)) == 1:
-            rand = randint(0,1)
+            rand = randint(0, 1)
             yield (0, -2*rand+1)
         else:
             yield (0, 0)
+
 
 def room(self):
     game = self.game
@@ -160,7 +166,7 @@ def room(self):
 def change_room(self, variant):
     change_map = [[(-1, 0), self.ypos, (0, 1)], [(0, 1), self.xpos, (1, 0)], [(1, 0), self.ypos, (0, 1)],
                   [(0, -1), self.xpos, (1, 0)]]
-    if change_map[variant][1] % 5 == 2 or ((variant==1 or variant==3) and (room(self)[1]) % 3 == 1):
+    if change_map[variant][1] % 5 == 2 or ((variant == 1 or variant == 3) and (room(self)[1]) % 3 == 1):
         return (change_map[variant][0])
     elif change_map[variant][1] % 5 < 2:
         return change_map[variant][2]
@@ -213,6 +219,7 @@ def chasing(self):
         counter += 1
         counter = counter % 5
 
+
 def fierce(self):
     counter = 0
     while room(self) != room(self.game.pc):
@@ -247,7 +254,7 @@ def angry(self):
     player_seen = False
     while True:
         if player_seen:
-            rand = randint(1,4)
+            rand = randint(1, 4)
             if rand == 1:
                 yield (0, 0)
             else:
@@ -263,6 +270,7 @@ def angry(self):
     game = self.game
     while True:
         yield (0, 0)"""
+
 
 def unlucky(self):
     counter = 0
@@ -284,6 +292,7 @@ def unlucky(self):
         elif (abs(self.ypos - game.pc.ypos)) == 0 and (abs(self.xpos - game.pc.xpos)) == 1:
             yield (game.pc.xpos - self.xpos, 0)
         yield(0, 0)
+
 
 def wary(self):
     game = self.game
@@ -363,7 +372,7 @@ class Creature(Sprite):
 
 
 class Player(Creature):
-    def __init__(self, path, tile_width, tile_height, game_state,
+    def __init__(self, tile_width, tile_height, game_state,
                  xpos=1, ypos=1, group=None):
         super().__init__('player', tile_width, tile_height,
                          game_state, xpos=xpos, ypos=ypos,
@@ -436,12 +445,12 @@ DEF: {self.stats[DEF]}
         if self.stats[HP] >= 3:
             self.image = self.game.sprite_textures['player']
         self.normalize()
-        
+
     def attack(self, target):
         super().attack(target)
         if self.stats[EXP] >= self.stats[NLV]:
             self.levelup()
-            
+
     def levelup(self):
         self.stats[LV] += 1
         self.stats[EXP] -= self.stats[NLV]
@@ -506,12 +515,13 @@ class Enemy(Creature):
         elif self.cycle:
             self.move_pattern = chain([(dx, dy)], self.move_pattern)
 
-    def on_damage(self, damage, source):
+    def on_damage(self, damage, source: Creature):
         super().on_damage(damage, source)
         if self.stats[HP] <= 0:
             self.game.enemies.remove(self)
-            self.game.pc.stats[G] += self.stats[G]
-            self.game.pc.stats[EXP] += self.stats[EXP]
+            if source == self.game.pc:
+                source.stats[G] += self.stats[G]
+                source.stats[EXP] += self.stats[EXP]
             # item.Item.from_JSON('items/nugget.json', self.game,
             #                    xpos=self.xpos, ypos=self.ypos)
             self.delete()
@@ -566,7 +576,7 @@ def add_enemies(game):
                     pass
                 else:
                     Enemy.from_json('enemies/guardian_standard.json', game, xp=cor * 15 + 7,
-                                        yp=(cell + 1) * 5 + 2)
+                                    yp=(cell + 1) * 5 + 2)
         Enemy.from_json('enemies/guardian_door.json', game,
                         xp=7 + 15 * game.end_staircase, yp=game.height - 6)
 

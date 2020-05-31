@@ -42,7 +42,6 @@ class Game(pyglet.window.Window):
         )
 
         self.pc = (creature.Player(
-            'img/player.png',
             self.tile_width, self.tile_height,
             xpos=1, ypos=1,
             game_state=self.game_state

@@ -47,18 +47,6 @@ def rooms_layout(corridors, cells, start_staircase, start_direction_up):
                 (0, 0)))
 
 
-"""
-c - podłoga korytarza
-W - ściana
-f - podłoga celi
-b - krata
-d - schody dół
-u - schody góra
-S - kamień
-P - punkt startowy
-"""
-
-
 def left_room(size):
     wynik = [[P_FLOOR for row in range(size)] for col in range(size)]
     for row in range(size):
@@ -144,7 +132,7 @@ def add_stone(map, cell_size, position, direction):
         for col in range(cell_size):
             (map[cell_size * position[0]]
              [cell_size * position[1] + col]) = STONE
-            rand = random.randint(0,5)
+            rand = random.randint(0, 5)
             if rand == 1 and rand == 2:
                 (map[cell_size * position[0] + 1]
                  [cell_size * position[1] + col]) = STONE
@@ -152,10 +140,11 @@ def add_stone(map, cell_size, position, direction):
         for col in range(cell_size):
             (map[cell_size * position[0] + cell_size - 1]
              [cell_size * position[1] + col]) = STONE
-            rand = random.randint(0,5)
+            rand = random.randint(0, 5)
             if rand == 1 and rand == 2:
                 (map[cell_size * position[0] + cell_size - 2]
                  [cell_size * position[1] + col]) = STONE
+
 
 def remove_wall(map, cell_size, position, direction):
     if direction == (-1, 0):
@@ -209,14 +198,3 @@ def floor(cell_size, corridors, cells, start_staircase, start_direction_up):
         remove_wall(floor, cell_size,
                     (cells+1, end_staircase * 3 + 1), (-1, 0))
     return floor, layout, end_staircase
-
-
-'''
-def debug_function():
-    dungeon, layout = floor(3, 3, 4, True)
-    pos = dict((n, n) for n in layout.nodes())
-    nx.draw(layout, with_labels=True, pos=pos, font_weight='bold')
-    plt.savefig("mygraph.png")
-    for i in range(len(dungeon)):
-        print(''.join(dungeon[i]))
-'''
