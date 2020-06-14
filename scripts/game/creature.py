@@ -245,7 +245,7 @@ def unlucky(self):
         elif counter == 10:
             self.image = game.tile_textures['rubble']
             self.on_damage = lambda *_: None
-            self.healthbar.scale_x=0
+            self.healthbar.scale_x = 0
             counter -= 1
             if room(self) == room(game.pc):
                 game.pc.image = (game.sprite_textures['player_d']
@@ -284,7 +284,7 @@ def goldenrule(self):
 
 patterns = {
     'aggresive': aggresive, 'glasses': glasses, 'coward': coward,
-    'chasing': chasing, 'wary': wary, 'goldenrule': goldenrule, 
+    'chasing': chasing, 'wary': wary, 'goldenrule': goldenrule,
     'angry': angry, 'unlucky': unlucky, 'fierce': fierce,
     'standard': standard, 'door': door
 }
@@ -445,7 +445,7 @@ class Enemy(Creature):
         dx, dy = next(self.move_pattern)
         new_x = self.xpos + dx
         new_y = self.ypos + dy
-        
+
         collision = [e for e in (self.game.enemies-{self}) | {self.game.pc}
                      if new_x == e.xpos and new_y == e.ypos]
         if collision != [] and collision[0] is self.game.pc:

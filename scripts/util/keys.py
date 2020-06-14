@@ -1,5 +1,6 @@
 from pyglet.window.key import *
 
+
 DIRECTIONAL = {UP, DOWN, LEFT, RIGHT}
 DIRECTIONS_DICT = {
     UP: (0, 1),

@@ -126,7 +126,6 @@ class MainMenu(pyglet.window.Window):
             self.visible_buttons[self.active_button]('left')
         elif symbol == pyglet.window.key.F1:
             print(self)
-        
 
     def new_game(self):
         Game(
