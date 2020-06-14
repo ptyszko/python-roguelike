@@ -1,6 +1,6 @@
 import pyglet
-from util import colors, fonts
-from util.button import Button
+from ..util import colors, fonts
+from ..util.button import Button
 from .gamewindow import Game
 from pyglet.window.key import UP, DOWN, LEFT, RIGHT, ENTER
 
@@ -106,13 +106,6 @@ class MainMenu(pyglet.window.Window):
         self.bcg.blit_tiled(0, 0, 0, width=self.width, height=self.height)
         self.active.draw()
 
-    '''def on_resize(self, width, height):
-        super().on_resize(width, height)
-        for button in self.visible_buttons:
-            button.x = width//2
-        self.title.x = width//2
-        self.title.y = height - 50'''
-
     def on_key_press(self, symbol, modifiers):
         super().on_key_press(symbol, modifiers)
         if symbol == UP:
@@ -133,6 +126,7 @@ class MainMenu(pyglet.window.Window):
             self.visible_buttons[self.active_button]('left')
         elif symbol == pyglet.window.key.F1:
             print(self)
+        
 
     def new_game(self):
         Game(

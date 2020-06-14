@@ -5,13 +5,11 @@ from pyglet.sprite import Sprite
 from pyglet.image import create, SolidColorImagePattern
 from pyglet.graphics import Batch
 from pyglet.text import Label
-import pyglet
 
-from util import tile
-from util.levelgen import get_clear_tile
-from util.fonts import SANS
-from util.colors import RED
-from . import item
+from ..util import tile
+from ..util.levelgen import get_clear_tile
+from ..util.fonts import SANS
+from ..util.colors import RED
 
 
 def sign(x):
@@ -372,15 +370,6 @@ class Player(Creature):
             if self.game.map[self.ypos][self.xpos] in tile.STAIRS:
                 self.game.stage += 1
                 self.game.next_stage = True
-
-        '''found_items = (c for c in self.game.consumables
-                       if c.xpos == self.xpos and c.ypos == self.ypos)
-        for item in found_items:
-            item.consume()
-        found_gear = (e for e in self.game.equippables
-                      if e.xpos == self.xpos and e.ypos == self.ypos)
-        for gear in found_gear:
-            gear.equip()'''
         self.update_status()
 
     def on_damage(self, damage, source):
@@ -454,12 +443,6 @@ class Enemy(Creature):
 
     def move(self):
         dx, dy = next(self.move_pattern)
-        """
-        # niedziałający kod leczenia się przeciwników
-        if dx == 0 and dy == 0:
-            if self.stats[HP] < self.stats[HPMAX]:
-                self.stats[HP] += 1
-        """
         new_x = self.xpos + dx
         new_y = self.ypos + dy
         
@@ -485,8 +468,6 @@ class Enemy(Creature):
             if source == self.game.pc:
                 source.stats[G] += self.stats[G]
                 source.stats[EXP] += self.stats[EXP]
-            # item.Item.from_JSON('items/nugget.json', self.game,
-            #                    xpos=self.xpos, ypos=self.ypos)
             self.delete()
             return None
         self.healthbar.scale_x = self.stats[HP]/self.stats[HPMAX]

@@ -1,6 +1,6 @@
 import pyglet
-from util.levelgen import generate_level
-from util import keys, tile, fonts, colors
+from ..util.levelgen import generate_level
+from ..util import keys, tile, fonts, colors
 from . import creature
 from random import randint
 

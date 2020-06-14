@@ -2,7 +2,7 @@ import pyglet
 from pyglet.image import load as load_image, ImageGrid, TextureGrid
 from pyglet.media import load as load_media, StaticSource
 from pyglet.graphics import Batch, OrderedGroup
-from game.mainmenu import MainMenu
+from scripts.game.mainmenu import MainMenu
 from time import sleep
 
 
