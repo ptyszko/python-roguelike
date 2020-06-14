@@ -133,7 +133,7 @@ class Game(pyglet.window.Window):
         self.pc.delete()
         pyglet.text.Label(
             'You win!\n'
-            + f'You obtained {self.game_state.pc.stats[creature.G]}G'
+            + f'You obtained {self.game_state.pc.stats[creature.G]}G\n'
             + 'Your time was:\n'
             + '{:2d}:{:02d}:{:02d}.{:02d}'.format(
                 int(self.time_elapsed) // 360000 % 60,

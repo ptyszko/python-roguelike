@@ -246,6 +246,8 @@ def unlucky(self):
             yield(0, -1)
         elif counter == 10:
             self.image = game.tile_textures['rubble']
+            self.on_damage = lambda *_: None
+            self.healthbar.scale_x=0
             counter -= 1
             if room(self) == room(game.pc):
                 game.pc.image = (game.sprite_textures['player_d']
@@ -460,19 +462,17 @@ class Enemy(Creature):
         """
         new_x = self.xpos + dx
         new_y = self.ypos + dy
+        
         collision = [e for e in (self.game.enemies-{self}) | {self.game.pc}
                      if new_x == e.xpos and new_y == e.ypos]
-        if collision != [] and (collision[0] is self.game.pc
-                                or collision[0].is_guard != self.is_guard):
+        if collision != [] and collision[0] is self.game.pc:
             self.attack(collision[0])
         elif (
-                0 < new_x < self.game.width - 1
+                collision == []
+                and 0 < new_x < self.game.width - 1
                 and 0 < new_y < self.game.height - 1
                 and self.game.map[new_y][new_x]
                 in tile.TRAVERSABLE
-                # and not any(new_x == e.xpos
-                #            and new_y == e.ypos
-                #            for e in self.game.enemies - {self})
         ):
             self.xpos += dx
             self.ypos += dy
