@@ -1,6 +1,0 @@
-{
-	"name": "bat",
-	"health": 3,
-	"move_pattern": "random",
-	"tex_name": "bandit_dig"
-}

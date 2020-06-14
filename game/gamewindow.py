@@ -19,13 +19,6 @@ class Game(pyglet.window.Window):
         self.bars = game_state.tile_textures['bars']
         self.rubble = game_state.tile_textures['rubble']
 
-        # do wyciemnienia przy fow
-        """self.dark_floor = game_state.tile_textures['floor']
-        self.dark_wall = game_state.tile_textures['wall']
-        self.dark_stairs = game_state.tile_textures['stairs']
-        self.dark_bars = game_state.tile_textures['bars']
-        self.dark_rubble = game_state.tile_textures['rubble']"""
-
         self.tile_width = self.floor.width
         self.tile_height = self.floor.height
         self.main_batch = pyglet.graphics.Batch()
@@ -134,12 +127,13 @@ class Game(pyglet.window.Window):
                 start_direction_up = False
             self.draw_stage(start_staircase, start_direction_up)
 
-    def win_screen(self):  # PLACEHOLDER
+    def win_screen(self):
         pyglet.clock.unschedule(self.time_step)
         self.set_caption('END')
         self.pc.delete()
         pyglet.text.Label(
             'You win!\n'
+            + f'You obtained {self.game_state.pc.stats[creature.G]}G'
             + 'Your time was:\n'
             + '{:2d}:{:02d}:{:02d}.{:02d}'.format(
                 int(self.time_elapsed) // 360000 % 60,

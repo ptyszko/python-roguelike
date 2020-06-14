@@ -1,5 +1,4 @@
 import networkx as nx
-from itertools import repeat, chain, cycle as _cycle
 from random import choice, normalvariate, randint, choices
 from json import loads
 from pyglet.sprite import Sprite
@@ -38,24 +37,6 @@ LEVELED_STATS = {
 # RANDOMIZED_STATS = LEVELED_STATS = set()
 LEVELING_FACTOR = 1 / 20
 VAR = 1 / 10
-
-
-def still(self):
-    return repeat((0, 0))
-
-
-def cycle(self, *movements):
-    return _cycle(movements)
-
-
-def random(self, neighborhood=4, freq=1):
-    moves = [(-1, 0), (1, 0), (0, 1), (0, -1)]  # sąsiedztwo von Neumanna
-    if neighborhood == 8:  # sąsiedztwo Conwaya
-        moves += [(-1, -1), (-1, 1), (1, -1), (1, 1)]
-    move = 0
-    while True:
-        yield choice(moves) if move == 0 else (0, 0)
-        move = (move + 1) % freq
 
 
 def random_step(self):
@@ -132,17 +113,6 @@ def aggresive(self, neighbourhood=8):
             yield (0, 0)
 
 
-"""
-    while True:
-        if abs(self.xpos - game.pc.xpos) < 3 and abs(self.ypos - game.pc.ypos) < 3:
-            dx = -sign(self.xpos - game.pc.xpos)
-            dy = -sign(self.ypos - game.pc.ypos)
-            yield (dx, dy)
-        else:
-            yield (0, 0)
-"""
-
-
 def coward(self):
     game = self.game
     while True:
@@ -193,7 +163,7 @@ def chasing_step(self, neighbourhood=8):
             else:
                 return (-dx, 0)
     else:
-        layout = self.game.layout
+        layout = game.layout
         path = nx.shortest_path(layout, (room(self)), (room(game.pc)))
         direction = tuple(map(lambda i, j: i - j, path[0], path[1]))
         variant = 0
@@ -265,12 +235,6 @@ def angry(self):
             yield (0, 0)
 
 
-"""def unlucky(self):
-    game = self.game
-    while True:
-        yield (0, 0)"""
-
-
 def unlucky(self):
     counter = 0
     game = self.game
@@ -308,7 +272,6 @@ def wary(self):
 
 
 def goldenrule(self):
-    game = self.game
     balance = 0
     maxhp = self.stats[HP]
     while True:
@@ -320,12 +283,9 @@ def goldenrule(self):
 
 
 patterns = {
-    'still': still, 'cycle': cycle,
-    'random': random, 'aggresive': aggresive,
-    'glasses': glasses, 'coward': coward,
-    'chasing': chasing, 'wary': wary,
-    'goldenrule': goldenrule, 'angry': angry,
-    'unlucky': unlucky, 'fierce': fierce,
+    'aggresive': aggresive, 'glasses': glasses, 'coward': coward,
+    'chasing': chasing, 'wary': wary, 'goldenrule': goldenrule, 
+    'angry': angry, 'unlucky': unlucky, 'fierce': fierce,
     'standard': standard, 'door': door
 }
 
@@ -448,8 +408,8 @@ DEF: {self.stats[DEF]}
     def heal(self, points=1):
         self.stats[HP] += points
         if self.stats[HP] >= 3:
-            self.image = (self.game.sprite_textures['player'] 
-                          if not self.disguised 
+            self.image = (self.game.sprite_textures['player']
+                          if not self.disguised
                           else self.game.sprite_textures['player_d'])
         self.normalize()
 
@@ -462,7 +422,7 @@ DEF: {self.stats[DEF]}
         self.stats[LV] += 1
         self.stats[EXP] -= self.stats[NLV]
         self.stats[NLV] = self.stats[LV] * 50
-        stat = choices([DMG, HPMAX, DEF], cum_weights=[5,10,11])[0]
+        stat = choices([DMG, HPMAX, DEF], cum_weights=[5, 10, 11])[0]
         self.stats[stat] += 1
         if stat == HPMAX:
             self.heal(1)
@@ -471,7 +431,7 @@ DEF: {self.stats[DEF]}
 class Enemy(Creature):
     def __init__(self, tex_name, tile_width, tile_height, game_state,
                  xpos=0, ypos=0, group=None, health=3,
-                 move_pattern=still, move_params=(), name='enemy',
+                 move_pattern=unlucky, move_params=(), name='enemy',
                  gold=1, exp=1, hitsound='bandit_hit', damage=1):
         super().__init__(tex_name, tile_width, tile_height, game_state,
                          xpos=xpos, ypos=ypos, group=group, damage=damage,
@@ -483,7 +443,6 @@ class Enemy(Creature):
                 self, *move_params)
         else:
             self.move_pattern = move_pattern(self, *move_params)
-        self.cycle = move_pattern == cycle
         self.game.enemies.add(self)
         self.stats[G] = gold
         self.stats[EXP] = exp
@@ -501,27 +460,23 @@ class Enemy(Creature):
         """
         new_x = self.xpos + dx
         new_y = self.ypos + dy
-        collision = [e for e in (self.game.enemies-{self})|{self.game.pc} 
+        collision = [e for e in (self.game.enemies-{self}) | {self.game.pc}
                      if new_x == e.xpos and new_y == e.ypos]
-        if collision != [] and (collision[0] is self.game.pc 
+        if collision != [] and (collision[0] is self.game.pc
                                 or collision[0].is_guard != self.is_guard):
             self.attack(collision[0])
-            if self.cycle:
-                self.move_pattern = chain([(dx, dy)], self.move_pattern)
         elif (
                 0 < new_x < self.game.width - 1
                 and 0 < new_y < self.game.height - 1
                 and self.game.map[new_y][new_x]
                 in tile.TRAVERSABLE
-                #and not any(new_x == e.xpos
+                # and not any(new_x == e.xpos
                 #            and new_y == e.ypos
                 #            for e in self.game.enemies - {self})
         ):
             self.xpos += dx
             self.ypos += dy
             self.update_pos()
-        elif self.cycle:
-            self.move_pattern = chain([(dx, dy)], self.move_pattern)
 
     def on_damage(self, damage, source: Creature):
         super().on_damage(damage, source)
@@ -564,13 +519,21 @@ class Enemy(Creature):
             ret.stats[stat] = int(ret.stats[stat])
 
 
+primary_bandit_type = ['enemies/bandit_coward.json',
+                       'enemies/bandit_goldenrule.json',
+                       'enemies/bandit_wary.json',
+                       'enemies/bandit_fierce.json']
+secondary_bandit_type = ['enemies/bandit_goldenrule.json',
+                         'enemies/bandit_wary.json',
+                         'enemies/bandit_fierce.json',
+                         'enemies/bandit_fierce.json']
+guard_type = ['enemies/guardian_glasses.json',
+              'enemies/guardian_angry.json',
+              'enemies/guardian_unlucky.json',
+              'enemies/guardian_door.json']
+
+
 def add_enemies(game):
-    primary_bandit_type = ['enemies/bandit_coward.json', 'enemies/bandit_goldenrule.json',
-                           'enemies/bandit_wary.json', 'enemies/bandit_fierce.json']
-    secondary_bandit_type = ['enemies/bandit_goldenrule.json', 'enemies/bandit_wary.json',
-                             'enemies/bandit_fierce.json', 'enemies/bandit_fierce.json']
-    guard_type = ['enemies/guardian_glasses.json', 'enemies/guardian_angry.json', 'enemies/guardian_unlucky.json',
-                  'enemies/guardian_door.json']
 
     corridors = game.width // 3 // game.cell_size
     cells = game.height // game.cell_size - 2
@@ -578,10 +541,13 @@ def add_enemies(game):
     if game.stage == 5:
         for cor in range(corridors):
             for cell in range(cells):
+                if (game.pc.xpos == cor*15 + 7
+                        and game.pc.ypos == (cell + 1) * 5 + 2):
+                    continue
                 if (cor == room(game.pc)[1]-1 and cell == 0):
-                    pass
-                elif (cor == game.end_staircase and cell == cells-1):
-                    pass
+                    continue
+                if (cor == game.end_staircase and cell == cells-1):
+                    continue
                 else:
                     Enemy.from_json('enemies/guardian_standard.json', game, xp=cor * 15 + 7,
                                     yp=(cell + 1) * 5 + 2)
@@ -592,12 +558,11 @@ def add_enemies(game):
         for cor in range(corridors):
             for side in range(2):
                 for cell in range(cells):
-                    rand = randint(0, 4)
-                    if rand == 0:
-                        Enemy.from_json(secondary_bandit_type[game.stage - 1], game, xp=cor * 15 + side * 10 + 2,
-                                        yp=(cell + 1) * 5 + 2)
-                    else:
-                        Enemy.from_json(primary_bandit_type[game.stage - 1], game, xp=cor * 15 + side * 10 + 2,
+                    pool = choices([primary_bandit_type,
+                                    secondary_bandit_type],
+                                   cum_weights=[3, 4], k=1)[0]
+                    if randint(0, 5) != 0:
+                        Enemy.from_json(pool[game.stage - 1], game, xp=cor * 15 + side * 10 + 2,
                                         yp=(cell + 1) * 5 + 2)
         Enemy.from_json(guard_type[game.stage - 1], game,
                         xp=7 + 15 * game.end_staircase, yp=game.height - 6)
